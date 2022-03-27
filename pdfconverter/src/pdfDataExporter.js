@@ -12,6 +12,7 @@ export class PDF extends Component {
     clientName: '',
     companyName: '',
     paymentTerms: '',
+    deliveryTime: '',
     prepayment: 0,
     uponShipment: 0,
     afterWork: 0,
@@ -80,7 +81,9 @@ export class PDF extends Component {
         <input type="text" placeholder="ФИО получателя" name="clientName" onChange={this.handleChange} />
         <input type="text" placeholder="Название компании" name="companyName" onChange={this.handleChange} />
 
-        <textarea placeholder="Условия оплаты" name="text" rows="4" cols="50" onChange={this.handleChange} />
+        <textarea placeholder="Условия оплаты" name="paymentTerms" rows="4" cols="50" onChange={this.handleChange} />
+
+        <input type="text" placeholder="Срок поставки" name="deliveryTime" onChange={this.handleChange} />
 
         <button disabled={!(this.state.clientName && this.state.companyName)}
           onClick={this.createAndDownloadPdf}><b>Скачать PDF</b></button>
@@ -90,14 +93,15 @@ export class PDF extends Component {
           onClick={this.handleRepeatFileChange}/>
 
         <br/><br/><p><b>Инструкция:</b></p>
-        <p>1. Введите ФИО получателя в именительном падеже (<b>Пример:</b> Иванов Иван Иванович)</p>
+        <p>1. Введите ФИО получателя <u>в именительном падеже</u> (<b>Пример:</b> Иванов Иван Иванович)</p>
         <p>2. Заполните графу с принимающей компанией (<b>Пример:</b> ООО «АРОСА»)</p>
         <p>3. Введите условия оплаты (<b>Пример:</b><br/>10% предоплата;<br/>
                                       50% по факту отгрузки с завода-изготовителя;<br/>
                                       40% после проведения пусконаладочных работ)
         </p>
-        <p>4. Загрузите данные с поставкой из Excel (<b>Кнопка «Выберите файл»</b>)</p>
-        <p>5. Если вас устраивают данные в таблице, то нажмите кнопку <b>«Скачать PDF»</b></p>
+        <p>5. Введите сроки поставки (<b>Пример:</b> 120-140 дней)</p>
+        <p>6. Загрузите данные с поставкой из Excel (<b>Кнопка «Выберите файл»</b>)</p>
+        <p>7. Если вас устраивают данные в таблице, то нажмите кнопку <b>«Скачать PDF»</b></p>
         <p>В противном случае используйте блок <b>"Действия"</b> для редактирования информации в таблице</p><br/>
 
         <table class="table container">

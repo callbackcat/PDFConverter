@@ -1,4 +1,4 @@
-module.exports = ({ clientName, companyName, items, paymentTerms }) => {
+module.exports = ({ clientName, companyName, items, paymentTerms, deliveryTime }) => {
 
 var petrovich = require('petrovich');
 
@@ -15,6 +15,13 @@ var total = 0;
 for (const item of items) {
 	var price = item.Price.toString().replace('-', '.').replace(/\s/g, '');
    total += parseFloat(price) * parseInt(item.Amount);
+}
+
+var newPageClass = ""
+var newPageTopPadding = 0
+if(items.length > 6) {
+  newPageClass = "clear newpage";
+  newPageTopPadding = 50;
 }
 
 return `
@@ -305,6 +312,14 @@ return `
           width:220pt;
        }
 
+       .newpage {
+         page-break-before: always;
+       }
+
+       #link {
+         color: blue;
+       }
+
       </style>
   </head>
   <body>
@@ -332,7 +347,7 @@ return `
         </tr>
         <p style="padding-top: 12pt;padding-left: 20pt;text-indent: 35pt;text-align: justify;">ООО «РТК «РосАква» является официальным эксклюзивным представителем в России и странах СНГ компании <b>Changsha Kaiyuan Instruments Co.,Ltd </b>– ведущего производителя КНР и разработчика высококлассного аналитического оборудования, автоматизированных систем пробоотбора и пробоподготовки, систем 100% контроля качества твердого топлива.</p>
         <p style="padding-left: 58pt;text-align: justify;">Предлагаем Вам рассмотреть возможность поставки для нужд Вашего предприятия</p><br/>
-        <table>
+
           <table class="orderTable">
             <thead>
               <tr>
@@ -364,17 +379,17 @@ return `
               </tr>
             </tfoot>
           </table>
-        </table>
       </table>
 
       <p style="text-align: left;"><br /></p>
       <p style="padding-left: 23pt;text-indent: 35pt;text-align: justify;">Цены указаны с учетом доставки до места установки, в стоимость включены пусконаладочные работы.</p>
       <p style="text-align: left;"><br /></p>
-      <p style="padding-left: 58pt;text-align: left;">Условия оплаты:</p>
+
+      <p class="${newPageClass}" style="padding-left: 58pt;text-align: left; padding-top: ${newPageTopPadding}px">Условия оплаты:</p>
       
       <p style="padding-left: 88pt;text-indent: -11pt;text-align: left;">${paymentTerms.replace(/\r?\n/g, '<br />')}</p><br />
 
-      <p style="padding-left: 58pt;text-align: left;">Срок поставки: 120-140 дней с момента подписания договора.</p>
+      <p style="padding-left: 58pt;text-align: left;">Срок поставки: ${deliveryTime} с момента подписания договора.</p>
       <p style="padding-left: 58pt;text-align: left;">Приложение: техническое описание приборов.</p>
       <p style="text-align: left;"><br /></p>
       <p style="text-align: left;">
@@ -390,6 +405,14 @@ return `
         <p style="padding-left: 5pt;"><b>г. Санкт-Петербург,</b></p>
         <p style="padding-left: 5pt;"><b>Мебельная 5А, офис 317</b></p>
       </div>
+
+      <div class="footer" style="width: 730px; text-align: right">
+        <p style="padding-top: 25pt;" />
+        <p style="padding-left: 5pt;padding-top: 10pt;"><b>тел/факс: (812) 600-36-12</b></p>
+        <p style="padding-left: 5pt;"><b>e-mail: <u id="link" href="https://outlook.office.com/mail/deeplink/compose?mailtouri=mailto%3Ainfo%40rosaqua.ru">info@rosaqua.ru</u></b></p>
+        <p style="padding-left: 5pt;"><b>сайт: <u id="link" href="http://www.rosaqua.ru">www.rosaqua.ru</u></b></p>
+    </div>
+
     </div>
   </body>
 </html>`;
