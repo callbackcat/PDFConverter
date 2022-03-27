@@ -5,6 +5,9 @@ import * as XLSX from "xlsx";
 
 export class PDF extends Component {
 
+  /**
+   * Состояние документа, которое прокидывается в documents/index.js
+   */
   state = {
     clientName: '',
     companyName: '',
@@ -38,8 +41,17 @@ export class PDF extends Component {
     });
   };
 
+  /**
+   * 
+   * @param {number} value Значение, которое вписывается в поле для ввода
+   * @param {string} name Название соответствующего поля 
+   * @returns {void} Устанавливает значение name равным value в состоянии state 
+   */
   handleChange = ({ target: { value, name }}) => this.setState({ [name]: value })
 
+  /**
+   * Посылаем запрос на создание документа на сервер
+   */
   createAndDownloadPdf = () => {
     axios.post('/create-pdf', this.state)
     .then(() => axios.get('offer-pdf', { responseType: 'blob' }))
