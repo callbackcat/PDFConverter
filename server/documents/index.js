@@ -3,20 +3,29 @@ module.exports = ({ clientName, companyName, items, paymentTerms, deliveryTime }
 var petrovich = require('petrovich');
 
 const d = new Date();
-var personData = clientName.split(' ');
 
+/**
+ * Разделяем ФИО по частям
+ */
+var personData = clientName.split(' ');
 var person = {
    first: personData[1],
    middle: personData[2],
    last: personData[0]
   };
 
+/**
+ * Подсчет общей цены товаров
+ */
 var total = 0;
 for (const item of items) {
 	var price = item.Price.toString().replace('-', '.').replace(/\s/g, '');
    total += parseFloat(price) * parseInt(item.Amount);
 }
 
+/**
+ * Делаем разрыв страницы после условий оплаты, если в таблице более 6 позиций
+ */
 var newPageClass = ""
 var newPageTopPadding = 0
 if(items.length > 6) {
