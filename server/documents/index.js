@@ -1,4 +1,4 @@
-module.exports = ({ clientName, companyName, prepayment, uponShipment, afterWork, items }) => {
+module.exports = ({ clientName, companyName, items, paymentTerms }) => {
 
 var petrovich = require('petrovich');
 
@@ -371,17 +371,8 @@ return `
       <p style="padding-left: 23pt;text-indent: 35pt;text-align: justify;">Цены указаны с учетом доставки до места установки, в стоимость включены пусконаладочные работы.</p>
       <p style="text-align: left;"><br /></p>
       <p style="padding-left: 58pt;text-align: left;">Условия оплаты:</p>
-      <ol id="l1">
-        <li data-list-text="1.">
-          <p style="padding-left: 88pt;text-indent: -11pt;text-align: left;">${prepayment}% предоплата;</p>
-        </li>
-        <li data-list-text="2.">
-          <p style="padding-left: 88pt;text-indent: -11pt;text-align: left;">${uponShipment}% по факту отгрузки с завода-изготовителя;</p>
-        </li>
-        <li data-list-text="3.">
-          <p style="padding-left: 88pt;text-indent: -11pt;text-align: left;">${afterWork}% после проведения пусконаладочных работ</p>
-        </li>
-      </ol>
+      
+      <p style="padding-left: 88pt;text-indent: -11pt;text-align: left;">${paymentTerms.replace(/\r?\n/g, '<br />')}</p><br />
 
       <p style="padding-left: 58pt;text-align: left;">Срок поставки: 120-140 дней с момента подписания договора.</p>
       <p style="padding-left: 58pt;text-align: left;">Приложение: техническое описание приборов.</p>
