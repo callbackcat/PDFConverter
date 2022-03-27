@@ -13,9 +13,6 @@ export class PDF extends Component {
     companyName: '',
     paymentTerms: '',
     deliveryTime: '',
-    prepayment: 0,
-    uponShipment: 0,
-    afterWork: 0,
     items: []
   }
 
@@ -85,7 +82,7 @@ export class PDF extends Component {
 
         <input type="text" placeholder="Срок поставки" name="deliveryTime" onChange={this.handleChange} />
 
-        <button disabled={!(this.state.clientName && this.state.companyName)}
+        <button disabled={!(this.state.clientName && this.state.companyName && this.state.paymentTerms && this.state.deliveryTime)}
           onClick={this.createAndDownloadPdf}><b>Скачать PDF</b></button>
 
         <input type="file"
@@ -112,13 +109,12 @@ export class PDF extends Component {
             <th scope="col">Модель</th>
             <th scope="col">Кол-во</th>
             <th scope="col">Стоимость, руб. Без НДС</th>
-            <th scope="col">Действия</th>
           </tr>
         </thead>
         <tbody>
           {this.state.items.map((d) => (
-            <tr key={d.Item}>
-              <th>{d.Item}</th>
+            <tr key={d.Id}>
+              <th>{d.Id}</th>
               <td>{d.ProductName}</td>
               <td>{d.Model}</td>
               <td>{d.Amount}</td>

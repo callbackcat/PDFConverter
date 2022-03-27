@@ -360,8 +360,8 @@ return `
             </thead>
             <tbody>
                ${items.map((d) => (
-                  `<tr key=${d.Item}>
-                    <td>${d.Item}</td>
+                  `<tr key=${d.Id}>
+                    <td>${d.Id}</td>
                      <td style="text-align: center;">${d.ProductName}</td>
                      <td><b>${d.Model}<b /></td>
                      <td>${d.Amount}</td>
