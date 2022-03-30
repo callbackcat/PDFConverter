@@ -1,4 +1,4 @@
-module.exports = ({ clientName, companyName, items, paymentTerms, deliveryTime }) => {
+module.exports = ({ clientName, companyName, items, paymentTerms, deliveryTime, docNum }) => {
 
 var petrovich = require('petrovich');
 
@@ -342,7 +342,7 @@ return `
           <tr style="height:17pt">
             <td style="width:296pt;border-top-style:solid;border-top-width:2pt">
               <p class="s2" style="padding-left: 14pt;line-height: 13pt;text-align: left;">Исх.
-              ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()} №РА-${d.getFullYear().toString().substr(-2)}/508</p>
+              ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()} №РА-${d.getFullYear().toString().substr(-2)}/${docNum}</p>
             </td>
             <td style="width:220pt;border-top-style:solid;border-top-width:2pt">
               <p class="s3" style="padding-left: 136pt;line-height: 13pt;text-align: left;">${companyName}</p>

@@ -13,7 +13,9 @@ export class PDF extends Component {
     companyName: '',
     paymentTerms: '',
     deliveryTime: '',
-    items: []
+    docNum: 0,
+    items: [],
+    pageNumbers: []
   }
 
   /**
@@ -25,7 +27,7 @@ export class PDF extends Component {
     const promise = new Promise((resolve, reject) => {
     const fileReader = new FileReader();
       fileReader.readAsArrayBuffer(file);
-
+      
       fileReader.onload = (e) => {
         const bufferArray = e.target.result;
         const wb = XLSX.read(bufferArray, { type: "buffer" });
@@ -40,8 +42,14 @@ export class PDF extends Component {
       };
     });
 
-    promise.then((d) => {
-      this.setState({items: d});
+    promise.then((jsonData) => {
+      var pages = []
+      for(var jsonItem in jsonData) {
+        pages.push(jsonData[jsonItem].PageNumber);
+      }
+
+      this.setState({ items: jsonData });
+      this.setState({ pageNumbers: pages });
     });
   };
 
@@ -72,24 +80,48 @@ export class PDF extends Component {
       })
   }
 
+  /**
+   * Посылаем запрос на создание мерджа картинок в техническое описание на сервер
+   */
+  createAndDownloadPdfFromImg = () => {
+    axios.post('/merge-img', this.state)
+    .then(() => axios.get('description-zip', { responseType: 'arraybuffer' }))
+    .then((res) => { 
+        const zipBlob = new Blob([res.data], { type: 'application/zip' });
+        saveAs(zipBlob, 'description.zip');
+      })
+  }
+
   render() {
     return (
       <div className="PDF">
-        <input type="text" placeholder="ФИО получателя" name="clientName" onChange={this.handleChange} />
-        <input type="text" placeholder="Название компании" name="companyName" onChange={this.handleChange} />
+        <input style={{margin: '5px'}} type="text" placeholder="ФИО получателя" name="clientName" onChange={this.handleChange} />
+        
+        <input style={{margin: '5px'}} type="text" placeholder="Название компании" name="companyName" onChange={this.handleChange} />
+        <div>
+          <textarea style={{margin: '10px'}} placeholder="Условия оплаты" name="paymentTerms" rows="4" cols="50" onChange={this.handleChange} />
+        </div>
 
-        <textarea placeholder="Условия оплаты" name="paymentTerms" rows="4" cols="50" onChange={this.handleChange} />
+        <input style={{margin: '5px'}} type="text" placeholder="Срок поставки" name="deliveryTime" onChange={this.handleChange} />
+        <input style={{margin: '5px'}} type="number" placeholder="Номер документа" name="docNum" onChange={this.handleChange} />
 
-        <input type="text" placeholder="Срок поставки" name="deliveryTime" onChange={this.handleChange} />
+        <input style={{marginLeft: '5px'}} type="file"
+          onChange={(e) => { const file = e.target.files[0]; this.readExcel(file); }}
+          onClick={this.handleRepeatFileChange}/><br/>
 
-        <button disabled={!(this.state.clientName && this.state.companyName && this.state.paymentTerms && this.state.deliveryTime)}
+        <button style={{margin: '10px'}}
+          class="btn btn-secondary" 
+          disabled={!(this.state.clientName && this.state.companyName && this.state.paymentTerms && this.state.deliveryTime && this.state.docNum)}
           onClick={this.createAndDownloadPdf}><b>Скачать PDF</b></button>
 
-        <input type="file"
-          onChange={(e) => { const file = e.target.files[0]; this.readExcel(file); }}
-          onClick={this.handleRepeatFileChange}/>
+        <button
+          class="btn btn-secondary"
+          disabled={this.state.items.length === 0}
+          onClick={this.createAndDownloadPdfFromImg}><b>Скачать техническое описание</b></button>
 
-        <br/><br/><p><b>Инструкция:</b></p>
+        <p class="text-primary"><b>Техническое описание скачиватеся с небольшой задержкой</b></p><br/>
+
+        <p><b>Инструкция:</b></p>
         <p>1. Введите ФИО получателя <u>в именительном падеже</u> (<b>Пример:</b> Иванов Иван Иванович)</p>
         <p>2. Заполните графу с принимающей компанией (<b>Пример:</b> ООО «АРОСА»)</p>
         <p>3. Введите условия оплаты (<b>Пример:</b><br/>10% предоплата;<br/>
@@ -99,7 +131,7 @@ export class PDF extends Component {
         <p>5. Введите сроки поставки (<b>Пример:</b> 120-140 дней)</p>
         <p>6. Загрузите данные с поставкой из Excel (<b>Кнопка «Выберите файл»</b>)</p>
         <p>7. Если вас устраивают данные в таблице, то нажмите кнопку <b>«Скачать PDF»</b></p>
-        <p>В противном случае используйте блок <b>"Действия"</b> для редактирования информации в таблице</p><br/>
+        <p>8. После загрузки <u>корректных данных в таблицу</u> нажмите кнопку <b>«Скачать техническое описание»</b></p>
 
         <table class="table container">
         <thead>
