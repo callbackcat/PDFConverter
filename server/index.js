@@ -30,8 +30,12 @@ app.post('/create-pdf', (req, res) => {
 
 // POST - PDF generation and data fetch for a technical description
 app.post('/merge-img', (req, res) => {
-  fs.rmSync(`${__dirname}/descriptions/`, { recursive: true, force: true });
-  fs.mkdirSync(`${__dirname}/descriptions/`);
+
+  var directory = `${__dirname}/descriptions/`;
+
+  // Удаляем папку и ее содержимое с нарезаными pdf-ками, чтобы сформировать новые описания
+  fs.rmSync(directory, { recursive: true, force: true });
+  fs.mkdirSync(directory);
 
   var pageLens = req.body.pageNumbers;
   var imagesPath = [];
@@ -68,7 +72,7 @@ app.get('/description-zip', (req, res) => {
   stream.on('close', () => console.log("Write stream was closed"));
   archive.finalize();
 
-  // Задержка в 5 секунд, чтобы архив успел сформироваться
+  // Задержка в 6 секунд, чтобы архив успел сформироваться
   setInterval(function() {
     res.sendFile(`${__dirname}/description.zip`);
   }, 6000);
