@@ -1,7 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx";
+import "bootstrap-icons/font/bootstrap-icons.css";
+
+import ReadOnlyRow from './components/ReadOnlyRow';
+import EditableRow from './components/EditableRow';
+import Instruction from './components/Instruction';
 
 export class PDF extends Component {
 
@@ -15,7 +20,16 @@ export class PDF extends Component {
     deliveryTime: '',
     docNum: 0,
     items: [],
-    pageNumbers: []
+    pageNumbers: [],
+
+    editProductId: null,
+    editFormData: {
+      ProductName: '',
+      Model: '',
+      Amount: 0,
+      Price: '',
+      PageNumber: ''
+    }
   }
 
   /**
@@ -92,69 +106,175 @@ export class PDF extends Component {
       })
   }
 
+  /**
+   * 
+   * @param {event} event Клик эвент
+   * @param {Object} rowData Ряд данных из таблицы
+   */
+  handleEditClick = (event, rowData) => {
+    event.preventDefault();
+    this.setState({ editProductId: rowData.Id })
+
+    const formValues = {
+      ProductName: rowData.ProductName,
+      Model: rowData.Model,
+      Amount: rowData.Amount,
+      Price: rowData.Price,
+      PageNumber: rowData.PageNumber
+    }
+
+    this.setState({ editFormData: formValues });
+  }
+
+  handleEditFormChange = (event) => {
+    event.preventDefault();
+
+    const fieldName = event.target.getAttribute('name');
+    const fieldValue = event.target.value;
+
+    const newFormData = { ...this.state.editFormData };
+    newFormData[fieldName] = fieldValue;
+
+    this.setState({ editFormData: newFormData })
+  }
+
+  handleEditFormSubmit = (event) => {
+    event.preventDefault();
+
+    const editedDataRow = {
+      Id: this.state.editProductId,
+      ProductName: this.state.editFormData.ProductName,
+      Model: this.state.editFormData.Model,
+      Amount: this.state.editFormData.Amount,
+      Price: this.state.editFormData.Price,
+      PageNumber: this.state.editFormData.PageNumber
+    }
+
+    const newDataRows = [...this.state.items];
+    const index = this.state.items.findIndex((rowData) => rowData.Id === this.state.editProductId);
+
+    newDataRows[index] = editedDataRow;
+
+    this.setState({ items: newDataRows });
+    this.setState({ editProductId: null });
+  }
+
   render() {
     return (
       <div className="PDF">
-        <input style={{margin: '5px'}} type="text" placeholder="ФИО получателя" name="clientName" onChange={this.handleChange} />
+        <i class="bi bi-terminal-fill" style={{position: 'absolute', left: 10, top: -10, fontSize: 50}}></i>
+
+        <input
+          style={{margin: '5px'}}
+          type="text"
+          placeholder="ФИО получателя"
+          name="clientName"
+          onChange={this.handleChange}
+        />
         
-        <input style={{margin: '5px'}} type="text" placeholder="Название компании" name="companyName" onChange={this.handleChange} />
+        <input
+          style={{margin: '5px'}}
+          type="text"
+          placeholder="Название компании"
+          name="companyName"
+          onChange={this.handleChange}
+        />
+
         <div>
-          <textarea style={{margin: '10px'}} placeholder="Условия оплаты" name="paymentTerms" rows="4" cols="50" onChange={this.handleChange} />
+          <textarea
+            style={{margin: '10px'}}
+            placeholder="Условия оплаты"
+            name="paymentTerms" rows="4"
+            cols="50"
+            onChange={this.handleChange}
+          />
         </div>
 
-        <input style={{margin: '5px'}} type="text" placeholder="Срок поставки" name="deliveryTime" onChange={this.handleChange} />
-        <input style={{margin: '5px'}} type="number" placeholder="Номер документа" name="docNum" onChange={this.handleChange} />
+        <input
+          style={{margin: '5px'}}
+          type="text"
+          placeholder="Срок поставки"
+          name="deliveryTime"
+          onChange={this.handleChange}
+        />
 
-        <input style={{marginLeft: '5px'}} type="file"
+        <input
+          style={{margin: '5px'}}
+          type="number"
+          placeholder="Номер документа"
+          name="docNum"
+          onChange={this.handleChange}
+        />
+
+        <input
+          style={{marginLeft: '5px'}} type="file"
           onChange={(e) => { const file = e.target.files[0]; this.readExcel(file); }}
-          onClick={this.handleRepeatFileChange}/><br/>
+          onClick={this.handleRepeatFileChange}
+        /><br/>
 
-        <button style={{margin: '10px'}}
+        <button
+          style={{margin: '10px'}}
           class="btn btn-secondary" 
-          disabled={!(this.state.clientName && this.state.companyName && this.state.paymentTerms && this.state.deliveryTime && this.state.docNum)}
-          onClick={this.createAndDownloadPdf}><b>Скачать PDF</b></button>
+          disabled={!(this.state.clientName &&
+                      this.state.companyName &&
+                      this.state.paymentTerms &&
+                      this.state.deliveryTime &&
+                      this.state.docNum)}
+
+          onClick={this.createAndDownloadPdf}
+        >
+            <b>Скачать PDF</b>
+        </button>
 
         <button
           class="btn btn-secondary"
           disabled={this.state.items.length === 0}
-          onClick={this.createAndDownloadPdfFromImg}><b>Скачать техническое описание</b></button>
+          onClick={this.createAndDownloadPdfFromImg}
+        >
+          <b>Скачать техническое описание</b>
+        </button>
 
-        <p class="text-primary"><b>Техническое описание скачиватеся с небольшой задержкой</b></p><br/>
-
-        <p><b>Инструкция:</b></p>
-        <p>1. Введите ФИО получателя <u>в именительном падеже</u> (<b>Пример:</b> Иванов Иван Иванович)</p>
-        <p>2. Заполните графу с принимающей компанией (<b>Пример:</b> ООО «АРОСА»)</p>
-        <p>3. Введите условия оплаты (<b>Пример:</b><br/>10% предоплата;<br/>
-                                      50% по факту отгрузки с завода-изготовителя;<br/>
-                                      40% после проведения пусконаладочных работ)
+        <p class="text-primary">
+          <i class="bi bi-exclamation-triangle-fill" style={{marginRight: '10px', color: '#F5a629'}}></i>
+            <b>Техническое описание скачиватеся с небольшой задержкой</b>
+          <i class="bi bi-exclamation-triangle-fill" style={{marginLeft: '10px', color: '#F5a629'}}></i>
         </p>
-        <p>5. Введите сроки поставки (<b>Пример:</b> 120-140 дней)</p>
-        <p>6. Загрузите данные с поставкой из Excel (<b>Кнопка «Выберите файл»</b>)</p>
-        <p>7. Если вас устраивают данные в таблице, то нажмите кнопку <b>«Скачать PDF»</b></p>
-        <p>8. После загрузки <u>корректных данных в таблицу</u> нажмите кнопку <b>«Скачать техническое описание»</b></p>
 
-        <table class="table container">
-        <thead>
-          <tr>
-            <th scope="col">№</th>
-            <th scope="col">Наименование продукции</th>
-            <th scope="col">Модель</th>
-            <th scope="col">Кол-во</th>
-            <th scope="col">Стоимость, руб. Без НДС</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.state.items.map((d) => (
-            <tr key={d.Id}>
-              <th>{d.Id}</th>
-              <td>{d.ProductName}</td>
-              <td>{d.Model}</td>
-              <td>{d.Amount}</td>
-              <td>{d.Price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <Instruction /><br/>
+
+        <form onSubmit={this.handleEditFormSubmit}>
+          <table class="table container">
+            <thead>
+              <tr>
+                <th scope="col">№</th>
+                <th scope="col">Наименование продукции</th>
+                <th scope="col">Модель</th>
+                <th scope="col">Кол-во</th>
+                <th scope="col">Стоимость, руб. Без НДС</th>
+                <th scope="col">Страницы</th>
+                <th style={{width:'150px'}} scope="col">Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.items.map((rowData) => (
+                <Fragment>
+                  { this.state.editProductId === rowData.Id ? (
+                  <EditableRow
+                    editProductId={this.state.editProductId}
+                    editFormData={this.state.editFormData}
+                    handleEditFormChange={this.handleEditFormChange}
+                  />
+                  ) : (
+                    <ReadOnlyRow
+                      rowData={rowData}
+                      handleEditClick={this.handleEditClick}
+                    />
+                  )}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        </form>
       </div>
     );
   }
