@@ -17,6 +17,7 @@
     "images-to-pdf": "^1.0.3",
     "multer": "^1.4.4",
     "petrovich": "^0.2.1",
-    "react-json-to-table": "^0.1.7"
+    "react-json-to-table": "^0.1.7",
+    "xlsx": "^0.18.5"
   }
 }

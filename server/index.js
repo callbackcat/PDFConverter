@@ -5,7 +5,10 @@ const cors = require("cors");
 const pdfTemplate = require("./documents");
 const imagesToPdf = require("images-to-pdf");
 const fs = require("fs");
+const xlsx = require("xlsx");
+
 const app = express();
+
 const port = process.env.PORT || 5000;
 
 // Middleware connection
@@ -58,6 +61,15 @@ app.get("/offer-pdf", (req, res) => {
 // GET - Get PDF description data
 app.get("/description-pdf", (req, res) => {
   res.sendFile(`${__dirname}/descriptions/description.pdf`);
+});
+
+app.get("/get-db-data", (req, res) => {
+  var wb = xlsx.readFile("./database.xlsx");
+  const wsname = wb.SheetNames[0];
+  const ws = wb.Sheets[wsname];
+  const data = xlsx.utils.sheet_to_json(ws);
+
+  res.send(data);
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

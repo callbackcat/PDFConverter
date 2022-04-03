@@ -71,6 +71,8 @@ export class PDF extends Component {
       this.setState({ items: jsonData });
       this.recountTechnicalDescriptionPages(jsonData);
     });
+
+    this.getDataFromDatabase();
   };
 
   /**
@@ -115,6 +117,12 @@ export class PDF extends Component {
       });
   };
 
+  getDataFromDatabase = () => {
+    axios
+      .get("/get-db-data")
+      .then((res) => this.setState({ database: res.body }));
+  };
+
   /**
    *
    * @param {event} event Клик эвент
@@ -122,6 +130,7 @@ export class PDF extends Component {
    */
   handleEditClick = (event, rowData) => {
     event.preventDefault();
+
     this.setState({ editProductId: rowData.Id });
 
     const formValues = {
