@@ -2,7 +2,9 @@ import React, { Component, Fragment } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx";
+
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { Button } from 'react-bootstrap';
 
 import ReadOnlyRow from './components/ReadOnlyRow';
 import EditableRow from './components/EditableRow';
@@ -24,6 +26,14 @@ export class PDF extends Component {
 
     editProductId: null,
     editFormData: {
+      ProductName: '',
+      Model: '',
+      Amount: 0,
+      Price: '',
+      PageNumber: ''
+    },
+
+    addFormData: {
       ProductName: '',
       Model: '',
       Amount: 0,
@@ -91,7 +101,7 @@ export class PDF extends Component {
     .then((res) => { 
         const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
         saveAs(pdfBlob, 'offer.pdf');
-      })
+      });
   }
 
   /**
@@ -103,7 +113,7 @@ export class PDF extends Component {
     .then((res) => { 
         const zipBlob = new Blob([res.data], { type: 'application/zip' });
         saveAs(zipBlob, 'description.zip');
-      })
+      });
   }
 
   /**
@@ -158,6 +168,45 @@ export class PDF extends Component {
     this.setState({ items: newDataRows });
     this.setState({ editProductId: null });
   }
+
+  handleAddFormChange = (event) => {
+    event.preventDefault();
+
+    const fieldName = event.target.getAttribute('name');
+    const fieldValue = event.target.value;
+
+    const newFormData = { ...this.state.addFormData };
+    newFormData[fieldName] = fieldValue;
+
+    this.setState({ addFormData: newFormData })
+  }
+
+  handleAddFormSubmit = (event) => {
+    event.preventDefault();
+
+    const newDataRow = {
+      // Получаем последний индекс в JSON'e и инкрементируем
+      Id: this.state.items[this.state.items.length-1].Id + 1,
+      ProductName: this.state.addFormData.ProductName,
+      Model: this.state.addFormData.Model,
+      Amount: this.state.addFormData.Amount,
+      Price: this.state.addFormData.Price,
+      PageNumber: this.state.addFormData.PageNumber
+    }
+
+    const updatedDataRows = [...this.state.items, newDataRow];
+    this.setState({ items: updatedDataRows })
+  }
+
+  handleDeleteClick = (Id) => {
+    const newDataRows = [...this.state.items];
+
+    const index = this.state.items.findIndex((item) => item.Id === Id);
+
+    newDataRows.splice(index, 1);
+
+    this.setState({ items: newDataRows })
+  };
 
   render() {
     return (
@@ -242,6 +291,60 @@ export class PDF extends Component {
 
         <Instruction /><br/>
 
+        {this.state.items.length > 0 && 
+        <div>
+          <h3>Добавить новый товар</h3>
+            <form onSubmit={this.handleAddFormSubmit}>
+              <input
+                  type="text"
+                  required="required"
+                  placeholder="Наименование"
+                  name="ProductName"
+                  onChange={this.handleAddFormChange}
+                  style={{margin: '5px'}}
+              />
+              <input
+                  type="text"
+                  required="required"
+                  placeholder="Модель"
+                  name="Model"
+                  onChange={this.handleAddFormChange}
+                  style={{margin: '5px'}}
+              />
+              <input
+                  type="number"
+                  required="required"
+                  placeholder="Количество"
+                  name="Amount"
+                  onChange={this.handleAddFormChange}
+                  style={{margin: '5px'}}
+              />
+              <input
+                  type="text"
+                  required="required"
+                  placeholder="Стоимость"
+                  name="Price"
+                  onChange={this.handleAddFormChange}
+                  style={{margin: '5px'}}
+              />
+              <input
+                  type="text"
+                  required="required"
+                  placeholder="Страницы"
+                  name="PageNumber"
+                  onChange={this.handleAddFormChange}
+                  style={{margin: '5px'}}
+              />
+              <Button
+                type="submit"
+                class="btn btn-success"
+                style={{ backgroundColor: '#24953d', border: 'none', margin: '5px' }}
+              >
+                Сохранить<i class="bi bi-check-lg" style={{marginLeft: '5px'}}></i>
+              </Button>
+            </form>
+          </div>}
+
         <form onSubmit={this.handleEditFormSubmit}>
           <table class="table container">
             <thead>
@@ -258,7 +361,7 @@ export class PDF extends Component {
             <tbody>
               {this.state.items.map((rowData) => (
                 <Fragment>
-                  { this.state.editProductId === rowData.Id ? (
+                  {this.state.editProductId === rowData.Id ? (
                   <EditableRow
                     editProductId={this.state.editProductId}
                     editFormData={this.state.editFormData}
@@ -268,6 +371,7 @@ export class PDF extends Component {
                     <ReadOnlyRow
                       rowData={rowData}
                       handleEditClick={this.handleEditClick}
+                      handleDeleteClick={this.handleDeleteClick}
                     />
                   )}
                 </Fragment>

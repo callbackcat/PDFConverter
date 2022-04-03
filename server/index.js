@@ -74,7 +74,7 @@ app.get('/description-zip', (req, res) => {
 
   // Задержка в 6 секунд, чтобы архив успел сформироваться
   setInterval(function() {
-    return res.sendFile(`${__dirname}/description.zip`);
+    res.sendFile(`${__dirname}/description.zip`);
   }, 6000);
 })
 
