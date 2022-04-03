@@ -140,6 +140,11 @@ export class PDF extends Component {
     this.setState({ editFormData: formValues });
   };
 
+  /**
+   *
+   * @param {event} event Клик эвент
+   * Заполняем поля промежуточного состояния editFormData для изменения существующего ряда
+   */
   handleEditFormChange = (event) => {
     event.preventDefault();
 
@@ -152,6 +157,12 @@ export class PDF extends Component {
     this.setState({ editFormData: newFormData });
   };
 
+  /**
+   * 
+   * @param {event} event Клик эвент
+   * Обновляем таблицу items таблицей newDataRows с измененным рядом
+   * Устанавливаем Id изменяемого ряда значением null
+   */
   handleEditFormSubmit = (event) => {
     event.preventDefault();
 
@@ -175,6 +186,11 @@ export class PDF extends Component {
     this.setState({ editProductId: null });
   };
 
+  /**
+   *
+   * @param {event} event Клик эвент
+   * Заполняем поля промежуточного состояния addFormData для добавления нового ряда
+   */
   handleAddFormChange = (event) => {
     event.preventDefault();
 
@@ -187,6 +203,11 @@ export class PDF extends Component {
     this.setState({ addFormData: newFormData });
   };
 
+  /**
+   *
+   * @param {event} event Клик эвент
+   * Обновляем отображаемый массив JSON-данных items новым updatedDataRows - с добавленным рядом
+   */
   handleAddFormSubmit = (event) => {
     event.preventDefault();
 
@@ -205,7 +226,7 @@ export class PDF extends Component {
   };
 
   /**
-   * 
+   *
    * @param {number} Id Номер ряда, который нужно удалить
    */
   handleDeleteClick = (Id) => {
@@ -216,7 +237,7 @@ export class PDF extends Component {
     newDataRows.splice(index, 1);
 
     // Пересчет Id рядов, после удаления
-    for (let i = Id-1; i < newDataRows.length; i++) {
+    for (let i = Id - 1; i < newDataRows.length; i++) {
       newDataRows[i].Id -= 1;
     }
 
