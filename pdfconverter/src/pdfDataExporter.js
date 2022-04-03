@@ -9,7 +9,7 @@ import { Button } from "react-bootstrap";
 import ReadOnlyRow from "./components/ReadOnlyRow";
 import EditableRow from "./components/EditableRow";
 import Instruction from "./components/Instruction";
-import Dropdown from "./components/Dropdown";
+//import Dropdown from "./components/Dropdown";
 
 export class PDF extends Component {
   /**
@@ -48,7 +48,7 @@ export class PDF extends Component {
    * @param {file} file Файл Excel, который нужно прочитать
    * @returns {void} Устанавливает значение items равным d - JSON Data, в состояниe state
    */
-  readExcelСommercialOffer = (file, isDataBase) => {
+  readExcelСommercialOffer = (file) => {
     const promise = new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.readAsArrayBuffer(file);
@@ -68,13 +68,8 @@ export class PDF extends Component {
     });
 
     promise.then((jsonData) => {
-      var pages = [];
-      for (var jsonItem in jsonData) {
-        pages.push(jsonData[jsonItem].PageNumber);
-      }
-
       this.setState({ items: jsonData });
-      this.setState({ pageNumbers: pages });
+      this.recountTechnicalDescriptionPages(jsonData);
     });
   };
 
@@ -113,10 +108,10 @@ export class PDF extends Component {
   createAndDownloadPdfFromImg = () => {
     axios
       .post("/merge-img", this.state)
-      .then(() => axios.get("description-zip", { responseType: "arraybuffer" }))
+      .then(() => axios.get("description-pdf", { responseType: "blob" }))
       .then((res) => {
-        const zipBlob = new Blob([res.data], { type: "application/zip" });
-        saveAs(zipBlob, "description.zip");
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+        saveAs(pdfBlob, "description.pdf");
       });
   };
 
@@ -158,7 +153,7 @@ export class PDF extends Component {
   };
 
   /**
-   * 
+   *
    * @param {event} event Клик эвент
    * Обновляем таблицу items таблицей newDataRows с измененным рядом
    * Устанавливаем Id изменяемого ряда значением null
@@ -182,6 +177,7 @@ export class PDF extends Component {
 
     newDataRows[index] = editedDataRow;
 
+    this.recountTechnicalDescriptionPages(newDataRows);
     this.setState({ items: newDataRows });
     this.setState({ editProductId: null });
   };
@@ -222,6 +218,7 @@ export class PDF extends Component {
     };
 
     const updatedDataRows = [...this.state.items, newDataRow];
+    this.recountTechnicalDescriptionPages(updatedDataRows);
     this.setState({ items: updatedDataRows });
   };
 
@@ -241,7 +238,22 @@ export class PDF extends Component {
       newDataRows[i].Id -= 1;
     }
 
+    this.recountTechnicalDescriptionPages(newDataRows);
     this.setState({ items: newDataRows });
+  };
+
+  /**
+   *
+   * @param {array} jsonData Массив текущих данных в таблице
+   * Функция пересчитыват количество страниц для ТО в зависимости от изменения таблицы
+   */
+  recountTechnicalDescriptionPages = (jsonData) => {
+    var pages = [];
+    for (var jsonItem in jsonData) {
+      pages.push(jsonData[jsonItem].PageNumber);
+    }
+
+    this.setState({ pageNumbers: pages });
   };
 
   render() {
@@ -330,18 +342,6 @@ export class PDF extends Component {
         >
           <b>Скачать техническое описание</b>
         </button>
-
-        <p class="text-primary">
-          <i
-            class="bi bi-exclamation-triangle-fill"
-            style={{ marginRight: "10px", color: "#F5a629" }}
-          ></i>
-          <b>Техническое описание скачиватеся с небольшой задержкой</b>
-          <i
-            class="bi bi-exclamation-triangle-fill"
-            style={{ marginLeft: "10px", color: "#F5a629" }}
-          ></i>
-        </p>
 
         <Instruction />
         <br />

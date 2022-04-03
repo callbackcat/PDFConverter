@@ -5,10 +5,7 @@ const cors = require("cors");
 const pdfTemplate = require("./documents");
 const imagesToPdf = require("images-to-pdf");
 const fs = require("fs");
-const archiver = require("archiver");
-
 const app = express();
-
 const port = process.env.PORT || 5000;
 
 // Middleware connection
@@ -31,7 +28,6 @@ app.post("/create-pdf", (req, res) => {
 app.post("/merge-img", (req, res) => {
   var directory = `${__dirname}/descriptions/`;
 
-  // Удаляем папку и ее содержимое с нарезаными pdf-ками, чтобы сформировать новые описания
   fs.rmSync(directory, { recursive: true, force: true });
   fs.mkdirSync(directory);
 
@@ -47,13 +43,9 @@ app.post("/merge-img", (req, res) => {
       var imagePath = `public/images/${i}.jpg`;
       imagesPath.push(imagePath);
     }
-
-    imagesToPdf(
-      imagesPath,
-      `${__dirname}/descriptions/description-${pageStart}-${pageEnd}.pdf`
-    );
-    imagesPath = [];
   }
+
+  imagesToPdf(imagesPath, `${__dirname}/descriptions/description.pdf`);
 
   res.send(Promise.resolve());
 });
@@ -64,19 +56,8 @@ app.get("/offer-pdf", (req, res) => {
 });
 
 // GET - Get PDF description data
-app.get("/description-zip", (req, res) => {
-  var stream = fs.createWriteStream(`${__dirname}/description.zip`);
-  const archive = archiver("zip");
-  archive.pipe(stream);
-  archive.directory(`${__dirname}/descriptions/`, false);
-
-  stream.on("close", () => console.log("Write stream was closed"));
-  archive.finalize();
-
-  // Задержка в 6 секунд, чтобы архив успел сформироваться
-  setInterval(function () {
-    res.sendFile(`${__dirname}/description.zip`);
-  }, 6000);
+app.get("/description-pdf", (req, res) => {
+  res.sendFile(`${__dirname}/descriptions/description.pdf`);
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
