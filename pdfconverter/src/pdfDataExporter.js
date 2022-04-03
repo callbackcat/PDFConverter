@@ -1,57 +1,58 @@
-import React, { Component, Fragment } from 'react';
-import axios from 'axios';
-import { saveAs } from 'file-saver';
+import React, { Component, Fragment } from "react";
+import axios from "axios";
+import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { Button } from 'react-bootstrap';
+import { Button } from "react-bootstrap";
 
-import ReadOnlyRow from './components/ReadOnlyRow';
-import EditableRow from './components/EditableRow';
-import Instruction from './components/Instruction';
+import ReadOnlyRow from "./components/ReadOnlyRow";
+import EditableRow from "./components/EditableRow";
+import Instruction from "./components/Instruction";
+import Dropdown from "./components/Dropdown";
 
 export class PDF extends Component {
-
   /**
    * Состояние документа, которое прокидывается в documents/index.js
    */
   state = {
-    clientName: '',
-    companyName: '',
-    paymentTerms: '',
-    deliveryTime: '',
+    clientName: "",
+    companyName: "",
+    paymentTerms: "",
+    deliveryTime: "",
     docNum: 0,
     items: [],
+    database: [],
     pageNumbers: [],
 
     editProductId: null,
     editFormData: {
-      ProductName: '',
-      Model: '',
+      ProductName: "",
+      Model: "",
       Amount: 0,
-      Price: '',
-      PageNumber: ''
+      Price: "",
+      PageNumber: "",
     },
 
     addFormData: {
-      ProductName: '',
-      Model: '',
+      ProductName: "",
+      Model: "",
       Amount: 0,
-      Price: '',
-      PageNumber: ''
-    }
-  }
+      Price: "",
+      PageNumber: "",
+    },
+  };
 
   /**
-   * 
+   *
    * @param {file} file Файл Excel, который нужно прочитать
    * @returns {void} Устанавливает значение items равным d - JSON Data, в состояниe state
    */
-  readExcel = (file) => {
+  readExcelСommercialOffer = (file, isDataBase) => {
     const promise = new Promise((resolve, reject) => {
-    const fileReader = new FileReader();
+      const fileReader = new FileReader();
       fileReader.readAsArrayBuffer(file);
-      
+
       fileReader.onload = (e) => {
         const bufferArray = e.target.result;
         const wb = XLSX.read(bufferArray, { type: "buffer" });
@@ -67,8 +68,8 @@ export class PDF extends Component {
     });
 
     promise.then((jsonData) => {
-      var pages = []
-      for(var jsonItem in jsonData) {
+      var pages = [];
+      for (var jsonItem in jsonData) {
         pages.push(jsonData[jsonItem].PageNumber);
       }
 
@@ -81,72 +82,75 @@ export class PDF extends Component {
    * Удаляет ранее выбранный Excel файл, чтобы корректно можно было выбрать другой при необходимости
    */
   handleRepeatFileChange = (event) => {
-    event.target.value = ''
-  }
+    event.target.value = "";
+  };
 
   /**
-   * 
+   *
    * @param {number} value Значение, которое вписывается в поле для ввода
-   * @param {string} name Название соответствующего поля 
+   * @param {string} name Название соответствующего поля
    * @returns {void} Устанавливает значение name равным value, в состояниe state
    */
-  handleChange = ({ target: { value, name }}) => this.setState({ [name]: value })
+  handleChange = ({ target: { value, name } }) =>
+    this.setState({ [name]: value });
 
   /**
    * Посылаем запрос на создание документа на сервер
    */
   createAndDownloadPdf = () => {
-    axios.post('/create-pdf', this.state)
-    .then(() => axios.get('offer-pdf', { responseType: 'blob' }))
-    .then((res) => { 
-        const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-        saveAs(pdfBlob, 'offer.pdf');
+    axios
+      .post("/create-pdf", this.state)
+      .then(() => axios.get("offer-pdf", { responseType: "blob" }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+        saveAs(pdfBlob, "offer.pdf");
       });
-  }
+  };
 
   /**
    * Посылаем запрос на создание мерджа картинок в техническое описание на сервер
    */
   createAndDownloadPdfFromImg = () => {
-    axios.post('/merge-img', this.state)
-    .then(() => axios.get('description-zip', { responseType: 'arraybuffer' }))
-    .then((res) => { 
-        const zipBlob = new Blob([res.data], { type: 'application/zip' });
-        saveAs(zipBlob, 'description.zip');
+    axios
+      .post("/merge-img", this.state)
+      .then(() => axios.get("description-zip", { responseType: "arraybuffer" }))
+      .then((res) => {
+        const zipBlob = new Blob([res.data], { type: "application/zip" });
+        saveAs(zipBlob, "description.zip");
       });
-  }
+  };
 
   /**
-   * 
+   *
    * @param {event} event Клик эвент
    * @param {Object} rowData Ряд данных из таблицы
    */
   handleEditClick = (event, rowData) => {
     event.preventDefault();
-    this.setState({ editProductId: rowData.Id })
+    this.setState({ editProductId: rowData.Id });
 
     const formValues = {
       ProductName: rowData.ProductName,
       Model: rowData.Model,
       Amount: rowData.Amount,
       Price: rowData.Price,
-      PageNumber: rowData.PageNumber
-    }
+      PageNumber: rowData.PageNumber,
+    };
 
     this.setState({ editFormData: formValues });
-  }
+  };
 
   handleEditFormChange = (event) => {
     event.preventDefault();
 
-    const fieldName = event.target.getAttribute('name');
+    const fieldName = event.target.getAttribute("name");
     const fieldValue = event.target.value;
 
     const newFormData = { ...this.state.editFormData };
     newFormData[fieldName] = fieldValue;
 
-    this.setState({ editFormData: newFormData })
-  }
+    this.setState({ editFormData: newFormData });
+  };
 
   handleEditFormSubmit = (event) => {
     event.preventDefault();
@@ -157,47 +161,53 @@ export class PDF extends Component {
       Model: this.state.editFormData.Model,
       Amount: this.state.editFormData.Amount,
       Price: this.state.editFormData.Price,
-      PageNumber: this.state.editFormData.PageNumber
-    }
+      PageNumber: this.state.editFormData.PageNumber,
+    };
 
     const newDataRows = [...this.state.items];
-    const index = this.state.items.findIndex((rowData) => rowData.Id === this.state.editProductId);
+    const index = this.state.items.findIndex(
+      (rowData) => rowData.Id === this.state.editProductId
+    );
 
     newDataRows[index] = editedDataRow;
 
     this.setState({ items: newDataRows });
     this.setState({ editProductId: null });
-  }
+  };
 
   handleAddFormChange = (event) => {
     event.preventDefault();
 
-    const fieldName = event.target.getAttribute('name');
+    const fieldName = event.target.getAttribute("name");
     const fieldValue = event.target.value;
 
     const newFormData = { ...this.state.addFormData };
     newFormData[fieldName] = fieldValue;
 
-    this.setState({ addFormData: newFormData })
-  }
+    this.setState({ addFormData: newFormData });
+  };
 
   handleAddFormSubmit = (event) => {
     event.preventDefault();
 
     const newDataRow = {
       // Получаем последний индекс в JSON'e и инкрементируем
-      Id: this.state.items[this.state.items.length-1].Id + 1,
+      Id: this.state.items[this.state.items.length - 1].Id + 1,
       ProductName: this.state.addFormData.ProductName,
       Model: this.state.addFormData.Model,
       Amount: this.state.addFormData.Amount,
       Price: this.state.addFormData.Price,
-      PageNumber: this.state.addFormData.PageNumber
-    }
+      PageNumber: this.state.addFormData.PageNumber,
+    };
 
     const updatedDataRows = [...this.state.items, newDataRow];
-    this.setState({ items: updatedDataRows })
-  }
+    this.setState({ items: updatedDataRows });
+  };
 
+  /**
+   * 
+   * @param {number} Id Номер ряда, который нужно удалить
+   */
   handleDeleteClick = (Id) => {
     const newDataRows = [...this.state.items];
 
@@ -205,24 +215,32 @@ export class PDF extends Component {
 
     newDataRows.splice(index, 1);
 
-    this.setState({ items: newDataRows })
+    // Пересчет Id рядов, после удаления
+    for (let i = Id-1; i < newDataRows.length; i++) {
+      newDataRows[i].Id -= 1;
+    }
+
+    this.setState({ items: newDataRows });
   };
 
   render() {
     return (
       <div className="PDF">
-        <i class="bi bi-terminal-fill" style={{position: 'absolute', left: 10, top: -10, fontSize: 50}}></i>
+        <i
+          class="bi bi-terminal-fill"
+          style={{ position: "absolute", left: 10, top: -10, fontSize: 50 }}
+        ></i>
 
         <input
-          style={{margin: '5px'}}
+          style={{ margin: "5px" }}
           type="text"
           placeholder="ФИО получателя"
           name="clientName"
           onChange={this.handleChange}
         />
-        
+
         <input
-          style={{margin: '5px'}}
+          style={{ margin: "5px" }}
           type="text"
           placeholder="Название компании"
           name="companyName"
@@ -231,16 +249,17 @@ export class PDF extends Component {
 
         <div>
           <textarea
-            style={{margin: '10px'}}
+            style={{ margin: "10px" }}
             placeholder="Условия оплаты"
-            name="paymentTerms" rows="4"
+            name="paymentTerms"
+            rows="4"
             cols="50"
             onChange={this.handleChange}
           />
         </div>
 
         <input
-          style={{margin: '5px'}}
+          style={{ margin: "5px" }}
           type="text"
           placeholder="Срок поставки"
           name="deliveryTime"
@@ -248,7 +267,7 @@ export class PDF extends Component {
         />
 
         <input
-          style={{margin: '5px'}}
+          style={{ margin: "5px" }}
           type="number"
           placeholder="Номер документа"
           name="docNum"
@@ -256,23 +275,31 @@ export class PDF extends Component {
         />
 
         <input
-          style={{marginLeft: '5px'}} type="file"
-          onChange={(e) => { const file = e.target.files[0]; this.readExcel(file); }}
+          style={{ marginLeft: "5px" }}
+          type="file"
+          onChange={(e) => {
+            const file = e.target.files[0];
+            this.readExcelСommercialOffer(file);
+          }}
           onClick={this.handleRepeatFileChange}
-        /><br/>
+        />
+        <br />
 
         <button
-          style={{margin: '10px'}}
-          class="btn btn-secondary" 
-          disabled={!(this.state.clientName &&
-                      this.state.companyName &&
-                      this.state.paymentTerms &&
-                      this.state.deliveryTime &&
-                      this.state.docNum)}
-
+          style={{ margin: "10px" }}
+          class="btn btn-secondary"
+          disabled={
+            !(
+              this.state.clientName &&
+              this.state.companyName &&
+              this.state.paymentTerms &&
+              this.state.deliveryTime &&
+              this.state.docNum
+            )
+          }
           onClick={this.createAndDownloadPdf}
         >
-            <b>Скачать PDF</b>
+          <b>Скачать PDF</b>
         </button>
 
         <button
@@ -284,66 +311,79 @@ export class PDF extends Component {
         </button>
 
         <p class="text-primary">
-          <i class="bi bi-exclamation-triangle-fill" style={{marginRight: '10px', color: '#F5a629'}}></i>
-            <b>Техническое описание скачиватеся с небольшой задержкой</b>
-          <i class="bi bi-exclamation-triangle-fill" style={{marginLeft: '10px', color: '#F5a629'}}></i>
+          <i
+            class="bi bi-exclamation-triangle-fill"
+            style={{ marginRight: "10px", color: "#F5a629" }}
+          ></i>
+          <b>Техническое описание скачиватеся с небольшой задержкой</b>
+          <i
+            class="bi bi-exclamation-triangle-fill"
+            style={{ marginLeft: "10px", color: "#F5a629" }}
+          ></i>
         </p>
 
-        <Instruction /><br/>
+        <Instruction />
+        <br />
 
-        {this.state.items.length > 0 && 
-        <div>
-          <h3>Добавить новый товар</h3>
+        {this.state.items.length > 0 && (
+          <div>
+            <h3>Добавить новый товар</h3>
             <form onSubmit={this.handleAddFormSubmit}>
               <input
-                  type="text"
-                  required="required"
-                  placeholder="Наименование"
-                  name="ProductName"
-                  onChange={this.handleAddFormChange}
-                  style={{margin: '5px'}}
+                type="text"
+                required="required"
+                placeholder="Наименование"
+                name="ProductName"
+                onChange={this.handleAddFormChange}
+                style={{ margin: "5px" }}
               />
               <input
-                  type="text"
-                  required="required"
-                  placeholder="Модель"
-                  name="Model"
-                  onChange={this.handleAddFormChange}
-                  style={{margin: '5px'}}
+                type="text"
+                required="required"
+                placeholder="Модель"
+                name="Model"
+                onChange={this.handleAddFormChange}
+                style={{ margin: "5px" }}
               />
               <input
-                  type="number"
-                  required="required"
-                  placeholder="Количество"
-                  name="Amount"
-                  onChange={this.handleAddFormChange}
-                  style={{margin: '5px'}}
+                type="number"
+                required="required"
+                placeholder="Количество"
+                name="Amount"
+                onChange={this.handleAddFormChange}
+                style={{ margin: "5px" }}
               />
               <input
-                  type="text"
-                  required="required"
-                  placeholder="Стоимость"
-                  name="Price"
-                  onChange={this.handleAddFormChange}
-                  style={{margin: '5px'}}
+                type="text"
+                required="required"
+                placeholder="Стоимость"
+                name="Price"
+                onChange={this.handleAddFormChange}
+                style={{ margin: "5px" }}
               />
               <input
-                  type="text"
-                  required="required"
-                  placeholder="Страницы"
-                  name="PageNumber"
-                  onChange={this.handleAddFormChange}
-                  style={{margin: '5px'}}
+                type="text"
+                required="required"
+                placeholder="Страницы"
+                name="PageNumber"
+                onChange={this.handleAddFormChange}
+                style={{ margin: "5px" }}
               />
               <Button
                 type="submit"
                 class="btn btn-success"
-                style={{ backgroundColor: '#24953d', border: 'none', margin: '5px' }}
+                style={{
+                  backgroundColor: "#24953d",
+                  border: "none",
+                  margin: "5px",
+                }}
               >
-                Сохранить<i class="bi bi-check-lg" style={{marginLeft: '5px'}}></i>
+                Сохранить
+                <i class="bi bi-check-lg" style={{ marginLeft: "5px" }}></i>
               </Button>
             </form>
-          </div>}
+          </div>
+        )}
 
         <form onSubmit={this.handleEditFormSubmit}>
           <table class="table container">
@@ -355,18 +395,20 @@ export class PDF extends Component {
                 <th scope="col">Кол-во</th>
                 <th scope="col">Стоимость, руб. Без НДС</th>
                 <th scope="col">Страницы</th>
-                <th style={{width:'150px'}} scope="col">Действия</th>
+                <th style={{ width: "150px" }} scope="col">
+                  Действия
+                </th>
               </tr>
             </thead>
             <tbody>
               {this.state.items.map((rowData) => (
                 <Fragment>
                   {this.state.editProductId === rowData.Id ? (
-                  <EditableRow
-                    editProductId={this.state.editProductId}
-                    editFormData={this.state.editFormData}
-                    handleEditFormChange={this.handleEditFormChange}
-                  />
+                    <EditableRow
+                      editProductId={this.state.editProductId}
+                      editFormData={this.state.editFormData}
+                      handleEditFormChange={this.handleEditFormChange}
+                    />
                   ) : (
                     <ReadOnlyRow
                       rowData={rowData}

@@ -1,11 +1,11 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const pdf = require('html-pdf');
-const cors = require('cors');
-const pdfTemplate = require('./documents');
-const imagesToPdf = require("images-to-pdf")
-const fs = require('fs');
-const archiver = require('archiver');
+const express = require("express");
+const bodyParser = require("body-parser");
+const pdf = require("html-pdf");
+const cors = require("cors");
+const pdfTemplate = require("./documents");
+const imagesToPdf = require("images-to-pdf");
+const fs = require("fs");
+const archiver = require("archiver");
 
 const app = express();
 
@@ -16,21 +16,19 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
 // POST - PDF generation and data fetch for a commercial proposal
-app.post('/create-pdf', (req, res) => {
-    pdf.create(pdfTemplate(req.body), {}).toFile('offer.pdf', (err) => {
-        if(err) {
-            res.send(Promise.reject());
-        }
-        
-        res.send(Promise.resolve());
-    });
+app.post("/create-pdf", (req, res) => {
+  pdf.create(pdfTemplate(req.body), {}).toFile("offer.pdf", (err) => {
+    if (err) {
+      res.send(Promise.reject());
+    }
+
+    res.send(Promise.resolve());
+  });
 });
 
 // POST - PDF generation and data fetch for a technical description
-app.post('/merge-img', (req, res) => {
-
+app.post("/merge-img", (req, res) => {
   var directory = `${__dirname}/descriptions/`;
 
   // Удаляем папку и ее содержимое с нарезаными pdf-ками, чтобы сформировать новые описания
@@ -40,17 +38,20 @@ app.post('/merge-img', (req, res) => {
   var pageLens = req.body.pageNumbers;
   var imagesPath = [];
 
-  for(const pageLen of pageLens) {
-    var currentPair = pageLen.split('-');
+  for (const pageLen of pageLens) {
+    var currentPair = pageLen.split("-");
     var pageStart = parseInt(currentPair[0]);
     var pageEnd = parseInt(currentPair[1]);
 
-    for(let i = pageStart; i <= pageEnd; i++) {
+    for (let i = pageStart; i <= pageEnd; i++) {
       var imagePath = `public/images/${i}.jpg`;
       imagesPath.push(imagePath);
     }
 
-    imagesToPdf(imagesPath, `${__dirname}/descriptions/description-${pageStart}-${pageEnd}.pdf`)
+    imagesToPdf(
+      imagesPath,
+      `${__dirname}/descriptions/description-${pageStart}-${pageEnd}.pdf`
+    );
     imagesPath = [];
   }
 
@@ -58,24 +59,24 @@ app.post('/merge-img', (req, res) => {
 });
 
 // GET - Get PDF offer data
-app.get('/offer-pdf', (req, res) => {
-  res.sendFile(`${__dirname}/offer.pdf`)
-})
+app.get("/offer-pdf", (req, res) => {
+  res.sendFile(`${__dirname}/offer.pdf`);
+});
 
-// GET - Get PDF description data 
-app.get('/description-zip', (req, res) => {
+// GET - Get PDF description data
+app.get("/description-zip", (req, res) => {
   var stream = fs.createWriteStream(`${__dirname}/description.zip`);
-  const archive = archiver('zip');
+  const archive = archiver("zip");
   archive.pipe(stream);
   archive.directory(`${__dirname}/descriptions/`, false);
 
-  stream.on('close', () => console.log("Write stream was closed"));
+  stream.on("close", () => console.log("Write stream was closed"));
   archive.finalize();
 
   // Задержка в 6 секунд, чтобы архив успел сформироваться
-  setInterval(function() {
+  setInterval(function () {
     res.sendFile(`${__dirname}/description.zip`);
   }, 6000);
-})
+});
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
