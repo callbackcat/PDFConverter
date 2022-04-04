@@ -71,6 +71,7 @@ export class PDF extends Component {
       this.recountTechnicalDescriptionPages(jsonData);
     });
 
+    // Читаем все необходимые данные из базы при выборе файла (входная точка)
     this.getDataFromDatabase();
     this.getTermsFromDatabase();
   };
@@ -130,12 +131,10 @@ export class PDF extends Component {
    * Посылаем запрос на парс условий из "БД" и их установку в стейт
    */
   getTermsFromDatabase = () => {
-    axios
-      .get("/get-db-terms")
-      .then((res) => {
-        this.setState({ paymentTerms: res.data[0].PaymentTerms});
-        this.setState({ deliveryTime: res.data[0].DeliveryTerms})
-      });
+    axios.get("/get-db-terms").then((res) => {
+      this.setState({ paymentTerms: res.data[0].PaymentTerms });
+      this.setState({ deliveryTime: res.data[0].DeliveryTerms });
+    });
   };
 
   /**
@@ -410,10 +409,13 @@ export class PDF extends Component {
               marginLeft: "270px",
               marginRight: "270px",
               marginBottom: "20px",
+              borderRadius: "10px",
             }}
           >
             <br />
-            <h3>Добавить новый товар</h3>
+            <h3>
+              <b>Добавить новый товар</b>
+            </h3>
             <form onSubmit={this.handleAddFormSubmit}>
               <input
                 type="text"
@@ -468,6 +470,7 @@ export class PDF extends Component {
                 <i class="bi bi-plus-lg" style={{ marginLeft: "5px" }}></i>
               </Button>
             </form>
+            <br />
           </div>
         )}
 
