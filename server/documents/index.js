@@ -398,7 +398,7 @@ return `
       
       <p style="padding-left: 88pt;text-align: left;">${paymentTerms.replace(/\r?\n/g, '<br />')}</p><br />
 
-      <p style="padding-left: 58pt;text-align: left;">Срок поставки: ${deliveryTime} с момента подписания договора.</p>
+      <p style="padding-left: 58pt;text-align: left;">Срок поставки: ${deliveryTime}</p>
       <p style="padding-left: 58pt;text-align: left;">Приложение: техническое описание приборов.</p>
       <p style="text-align: left;"><br /></p>
       <p style="text-align: left;">

@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 
-const ReadOnlyRow = ({ rowData, handleEditClick, handleDeleteClick }) => {
+const ReadOnlyRow = ({ rowData, handleEditClick, handleDeleteClick, handleLoadModelClick }) => {
   return (
     <tr key={rowData.Id}>
       <td>{rowData.Id}</td>
@@ -33,6 +33,20 @@ const ReadOnlyRow = ({ rowData, handleEditClick, handleDeleteClick }) => {
           }}
         >
           Удалить<i class="bi bi-trash-fill" style={{ marginLeft: "10px" }}></i>
+        </Button>
+
+        <Button
+          type="button"
+          class="btn btn-info"
+          onClick={(event) => handleLoadModelClick(event, rowData)}
+          style={{
+            backgroundColor: "#17a2b8",
+            border: "none",
+            width: "125px",
+            marginTop: "5px",
+          }}
+        >
+          Данные по модели<i class="bi bi-box-arrow-down" style={{ marginLeft: "10px" }}></i>
         </Button>
       </td>
     </tr>

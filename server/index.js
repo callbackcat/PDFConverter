@@ -11,12 +11,12 @@ const app = express();
 
 const port = process.env.PORT || 5000;
 
-// Middleware connection
+// Подключение промежуточного программного обеспечения
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// POST - PDF generation and data fetch for a commercial proposal
+// POST - PDF генерация для коммерческого предложения
 app.post("/create-pdf", (req, res) => {
   pdf.create(pdfTemplate(req.body), {}).toFile("offer.pdf", (err) => {
     if (err) {
@@ -27,7 +27,7 @@ app.post("/create-pdf", (req, res) => {
   });
 });
 
-// POST - PDF generation and data fetch for a technical description
+// POST - PDF генерация для технического описания
 app.post("/merge-img", (req, res) => {
   var directory = `${__dirname}/descriptions/`;
 
@@ -53,19 +53,30 @@ app.post("/merge-img", (req, res) => {
   res.send(Promise.resolve());
 });
 
-// GET - Get PDF offer data
+// GET - Получаем PDF оффер
 app.get("/offer-pdf", (req, res) => {
   res.sendFile(`${__dirname}/offer.pdf`);
 });
 
-// GET - Get PDF description data
+// GET - Получаем PDF описание
 app.get("/description-pdf", (req, res) => {
   res.sendFile(`${__dirname}/descriptions/description.pdf`);
 });
 
+// GET - Получаем данные из таблицы БД
 app.get("/get-db-data", (req, res) => {
   var wb = xlsx.readFile("./database.xlsx");
   const wsname = wb.SheetNames[0];
+  const ws = wb.Sheets[wsname];
+  const data = xlsx.utils.sheet_to_json(ws);
+
+  res.send(data);
+});
+
+// GET - Получаем условия из таблицы БД
+app.get("/get-db-terms", (req, res) => {
+  var wb = xlsx.readFile("./database.xlsx");
+  const wsname = wb.SheetNames[1];
   const ws = wb.Sheets[wsname];
   const data = xlsx.utils.sheet_to_json(ws);
 

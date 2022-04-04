@@ -9,7 +9,6 @@ import { Button } from "react-bootstrap";
 import ReadOnlyRow from "./components/ReadOnlyRow";
 import EditableRow from "./components/EditableRow";
 import Instruction from "./components/Instruction";
-//import Dropdown from "./components/Dropdown";
 
 export class PDF extends Component {
   /**
@@ -73,6 +72,7 @@ export class PDF extends Component {
     });
 
     this.getDataFromDatabase();
+    this.getTermsFromDatabase();
   };
 
   /**
@@ -117,16 +117,32 @@ export class PDF extends Component {
       });
   };
 
+  /**
+   * Посылаем запрос на парс данных из "БД" и их установку в стейт
+   */
   getDataFromDatabase = () => {
     axios
       .get("/get-db-data")
-      .then((res) => this.setState({ database: res.body }));
+      .then((res) => this.setState({ database: res.data }));
+  };
+
+  /**
+   * Посылаем запрос на парс условий из "БД" и их установку в стейт
+   */
+  getTermsFromDatabase = () => {
+    axios
+      .get("/get-db-terms")
+      .then((res) => {
+        this.setState({ paymentTerms: res.data[0].PaymentTerms});
+        this.setState({ deliveryTime: res.data[0].DeliveryTerms})
+      });
   };
 
   /**
    *
    * @param {event} event Клик эвент
    * @param {Object} rowData Ряд данных из таблицы
+   * Обрабатываем изменения полей в режиме редактирования => записываем во временное состояние
    */
   handleEditClick = (event, rowData) => {
     event.preventDefault();
@@ -159,6 +175,39 @@ export class PDF extends Component {
     newFormData[fieldName] = fieldValue;
 
     this.setState({ editFormData: newFormData });
+  };
+
+  /**
+   *
+   * @param {event} event Клик эвент
+   * @param {Object} rowData Ряд данных из таблицы
+   * Подгружаем данные из базы по названию Модели и заменяем ряд в таблице
+   */
+  handleLoadModelClick = (event, rowData) => {
+    event.preventDefault();
+
+    const dbIndex = this.state.database.findIndex(
+      (dbRowData) => dbRowData.Model === rowData.Model
+    );
+
+    const index = this.state.items.findIndex(
+      (itemsRowData) => itemsRowData.Id === rowData.Id
+    );
+
+    const editedDataRow = {
+      Id: rowData.Id,
+      ProductName: this.state.database[dbIndex].ProductName,
+      Model: this.state.database[dbIndex].Model,
+      Amount: rowData.Amount,
+      Price: this.state.database[dbIndex].Price,
+      PageNumber: rowData.PageNumber,
+    };
+
+    const newDataRows = [...this.state.items];
+
+    newDataRows[index] = editedDataRow;
+
+    this.setState({ items: newDataRows });
   };
 
   /**
@@ -334,9 +383,8 @@ export class PDF extends Component {
             !(
               this.state.clientName &&
               this.state.companyName &&
-              this.state.paymentTerms &&
-              this.state.deliveryTime &&
-              this.state.docNum
+              this.state.docNum &&
+              this.state.items.length > 0
             )
           }
           onClick={this.createAndDownloadPdf}
@@ -356,7 +404,15 @@ export class PDF extends Component {
         <br />
 
         {this.state.items.length > 0 && (
-          <div>
+          <div
+            style={{
+              backgroundColor: "#bbbbbba9",
+              marginLeft: "270px",
+              marginRight: "270px",
+              marginBottom: "20px",
+            }}
+          >
+            <br />
             <h3>Добавить новый товар</h3>
             <form onSubmit={this.handleAddFormSubmit}>
               <input
@@ -408,8 +464,8 @@ export class PDF extends Component {
                   margin: "5px",
                 }}
               >
-                Сохранить
-                <i class="bi bi-check-lg" style={{ marginLeft: "5px" }}></i>
+                Добавить в таблицу
+                <i class="bi bi-plus-lg" style={{ marginLeft: "5px" }}></i>
               </Button>
             </form>
           </div>
@@ -444,6 +500,7 @@ export class PDF extends Component {
                       rowData={rowData}
                       handleEditClick={this.handleEditClick}
                       handleDeleteClick={this.handleDeleteClick}
+                      handleLoadModelClick={this.handleLoadModelClick}
                     />
                   )}
                 </Fragment>
