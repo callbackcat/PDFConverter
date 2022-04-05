@@ -9,6 +9,7 @@ import { Button } from "react-bootstrap";
 import ReadOnlyRow from "./components/ReadOnlyRow";
 import EditableRow from "./components/EditableRow";
 import Instruction from "./components/Instruction";
+import Dropdown from "./components/Dropdown";
 
 export class PDF extends Component {
   /**
@@ -181,7 +182,7 @@ export class PDF extends Component {
    * @param {event} event Клик эвент
    * @param {Object} rowData Ряд данных из таблицы
    * Подгружаем данные из базы по названию Модели и заменяем ряд в таблице
-   */
+   
   handleLoadModelClick = (event, rowData) => {
     event.preventDefault();
 
@@ -208,6 +209,7 @@ export class PDF extends Component {
 
     this.setState({ items: newDataRows });
   };
+  */
 
   /**
    *
@@ -254,6 +256,31 @@ export class PDF extends Component {
     newFormData[fieldName] = fieldValue;
 
     this.setState({ addFormData: newFormData });
+  };
+
+  /**
+   *
+   * @param {event} event Клик эвент
+   * Подгружаем данные из базы по названию Модели и подставляем в поля добавления нового ряда
+   */
+  handleModelSelect = (event) => {
+    event.preventDefault();
+
+    var currentModel = document.getElementById("modelsList").value;
+
+    const dbIndex = this.state.database.findIndex(
+      (dbRowData) => dbRowData.Model === currentModel
+    );
+
+    const newDataRow = {
+      ProductName: this.state.database[dbIndex].ProductName,
+      Model: this.state.database[dbIndex].Model,
+      Amount: this.state.addFormData.Amount,
+      Price: this.state.database[dbIndex].Price,
+      PageNumber: this.state.database[dbIndex].PageNumber,
+    };
+
+    this.setState({ addFormData: newDataRow });
   };
 
   /**
@@ -344,6 +371,7 @@ export class PDF extends Component {
             name="paymentTerms"
             rows="4"
             cols="50"
+            value={this.state.paymentTerms}
             onChange={this.handleChange}
           />
         </div>
@@ -351,8 +379,9 @@ export class PDF extends Component {
         <input
           style={{ margin: "5px" }}
           type="text"
-          placeholder="Срок поставки"
+          placeholder="Условия поставки"
           name="deliveryTime"
+          value={this.state.deliveryTime}
           onChange={this.handleChange}
         />
 
@@ -423,14 +452,13 @@ export class PDF extends Component {
                 placeholder="Наименование"
                 name="ProductName"
                 onChange={this.handleAddFormChange}
+                value={this.state.addFormData.ProductName}
                 style={{ margin: "5px" }}
               />
-              <input
-                type="text"
-                required="required"
-                placeholder="Модель"
+              <Dropdown
+                data={this.state.database}
                 name="Model"
-                onChange={this.handleAddFormChange}
+                handleModelSelect={this.handleModelSelect}
                 style={{ margin: "5px" }}
               />
               <input
@@ -447,6 +475,7 @@ export class PDF extends Component {
                 placeholder="Стоимость"
                 name="Price"
                 onChange={this.handleAddFormChange}
+                value={this.state.addFormData.Price}
                 style={{ margin: "5px" }}
               />
               <input
@@ -455,6 +484,7 @@ export class PDF extends Component {
                 placeholder="Страницы"
                 name="PageNumber"
                 onChange={this.handleAddFormChange}
+                value={this.state.addFormData.PageNumber}
                 style={{ margin: "5px" }}
               />
               <Button
@@ -503,7 +533,6 @@ export class PDF extends Component {
                       rowData={rowData}
                       handleEditClick={this.handleEditClick}
                       handleDeleteClick={this.handleDeleteClick}
-                      handleLoadModelClick={this.handleLoadModelClick}
                     />
                   )}
                 </Fragment>
