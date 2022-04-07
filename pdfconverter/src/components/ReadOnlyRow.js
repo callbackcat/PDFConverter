@@ -4,12 +4,12 @@ import { Button } from "react-bootstrap";
 const ReadOnlyRow = ({ rowData, handleEditClick, handleDeleteClick }) => {
   return (
     <tr key={rowData.Id}>
-      <td>{rowData.Id}</td>
-      <td>{rowData.ProductName}</td>
-      <td>{rowData.Model}</td>
-      <td>{rowData.Amount}</td>
-      <td>{rowData.Price}</td>
-      <td>{rowData.PageNumber}</td>
+      <td style={{verticalAlign: 'middle'}}>{rowData.Id}</td>
+      <td style={{verticalAlign: 'middle'}}>{rowData.ProductName}</td>
+      <td style={{verticalAlign: 'middle'}}>{rowData.Model}</td>
+      <td style={{verticalAlign: 'middle'}}>{rowData.Amount}</td>
+      <td style={{verticalAlign: 'middle'}}>{rowData.Price}</td>
+      <td style={{verticalAlign: 'middle'}}>{rowData.PageNumber}</td>
       <td>
         <Button
           type="button"

@@ -8,8 +8,8 @@ import { Button } from "react-bootstrap";
 
 import ReadOnlyRow from "./components/ReadOnlyRow";
 import EditableRow from "./components/EditableRow";
-import Instruction from "./components/Instruction";
 import Dropdown from "./components/Dropdown";
+import FAQ from "./components/FAQ";
 
 export class PDF extends Component {
   /**
@@ -71,11 +71,16 @@ export class PDF extends Component {
       this.setState({ items: jsonData });
       this.recountTechnicalDescriptionPages(jsonData);
     });
+  };
 
-    // Читаем все необходимые данные из базы при выборе файла (входная точка)
+  /**
+   * Читаем все необходимые данные из базы при первом вызове render()
+   * Устанавливаем значения по умолчанию для условий оплаты и доставки из базы
+   */
+  componentDidMount() {
     this.getDataFromDatabase();
     this.getTermsFromDatabase();
-  };
+  }
 
   /**
    * Удаляет ранее выбранный Excel файл, чтобы корректно можно было выбрать другой при необходимости
@@ -291,9 +296,16 @@ export class PDF extends Component {
   handleAddFormSubmit = (event) => {
     event.preventDefault();
 
+    // Если таблица items пустая, то добавляем новый ряд с Id: 1, иначе берем последний Id из таблицы
+    var newRowIndex;
+    if (this.state.items.length === 0) {
+      newRowIndex = 1;
+    } else {
+      newRowIndex = this.state.items[this.state.items.length - 1].Id + 1;
+    }
+
     const newDataRow = {
-      // Получаем последний индекс в JSON'e и инкрементируем
-      Id: this.state.items[this.state.items.length - 1].Id + 1,
+      Id: newRowIndex,
       ProductName: this.state.addFormData.ProductName,
       Model: this.state.addFormData.Model,
       Amount: this.state.addFormData.Amount,
@@ -411,13 +423,12 @@ export class PDF extends Component {
             !(
               this.state.clientName &&
               this.state.companyName &&
-              this.state.docNum &&
-              this.state.items.length > 0
+              this.state.docNum
             )
           }
           onClick={this.createAndDownloadPdf}
         >
-          <b>Скачать PDF</b>
+          <b>Скачать коммерческое предложение</b>
         </button>
 
         <button
@@ -428,81 +439,79 @@ export class PDF extends Component {
           <b>Скачать техническое описание</b>
         </button>
 
-        <Instruction />
+        <FAQ />
         <br />
 
-        {this.state.items.length > 0 && (
-          <div
-            style={{
-              backgroundColor: "#bbbbbba9",
-              marginLeft: "270px",
-              marginRight: "270px",
-              marginBottom: "20px",
-              borderRadius: "10px",
-            }}
-          >
-            <br />
-            <h3>
-              <b>Добавить новый товар</b>
-            </h3>
-            <form onSubmit={this.handleAddFormSubmit}>
-              <input
-                type="text"
-                required="required"
-                placeholder="Наименование"
-                name="ProductName"
-                onChange={this.handleAddFormChange}
-                value={this.state.addFormData.ProductName}
-                style={{ margin: "5px" }}
-              />
-              <Dropdown
-                data={this.state.database}
-                name="Model"
-                handleModelSelect={this.handleModelSelect}
-                style={{ margin: "5px" }}
-              />
-              <input
-                type="number"
-                required="required"
-                placeholder="Количество"
-                name="Amount"
-                onChange={this.handleAddFormChange}
-                style={{ margin: "5px" }}
-              />
-              <input
-                type="text"
-                required="required"
-                placeholder="Стоимость"
-                name="Price"
-                onChange={this.handleAddFormChange}
-                value={this.state.addFormData.Price}
-                style={{ margin: "5px" }}
-              />
-              <input
-                type="text"
-                required="required"
-                placeholder="Страницы"
-                name="PageNumber"
-                onChange={this.handleAddFormChange}
-                value={this.state.addFormData.PageNumber}
-                style={{ margin: "5px" }}
-              />
-              <Button
-                type="submit"
-                class="btn btn-success"
-                style={{
-                  backgroundColor: "#24953d",
-                  border: "none",
-                  margin: "5px",
-                }}
-              >
-                Добавить в таблицу
-                <i class="bi bi-plus-lg" style={{ marginLeft: "5px" }}></i>
-              </Button>
-            </form>
-            <br />
-          </div>
-        )}
+        <div
+          style={{
+            backgroundColor: "#bbbbbba9",
+            marginLeft: "270px",
+            marginRight: "270px",
+            marginBottom: "20px",
+            borderRadius: "10px",
+          }}
+        >
+          <br />
+          <h3>
+            <b>Добавить новый товар</b>
+          </h3>
+          <form onSubmit={this.handleAddFormSubmit}>
+            <input
+              type="text"
+              required="required"
+              placeholder="Наименование"
+              name="ProductName"
+              onChange={this.handleAddFormChange}
+              value={this.state.addFormData.ProductName}
+              style={{ margin: "5px" }}
+            />
+            <Dropdown
+              data={this.state.database}
+              name="Model"
+              handleModelSelect={this.handleModelSelect}
+              style={{ margin: "5px" }}
+            />
+            <input
+              type="number"
+              required="required"
+              placeholder="Количество"
+              name="Amount"
+              onChange={this.handleAddFormChange}
+              style={{ margin: "5px" }}
+            />
+            <input
+              type="text"
+              required="required"
+              placeholder="Стоимость"
+              name="Price"
+              onChange={this.handleAddFormChange}
+              value={this.state.addFormData.Price}
+              style={{ margin: "5px" }}
+            />
+            <input
+              type="text"
+              required="required"
+              placeholder="Страницы"
+              name="PageNumber"
+              onChange={this.handleAddFormChange}
+              value={this.state.addFormData.PageNumber}
+              style={{ margin: "5px" }}
+            />
+            <Button
+              type="submit"
+              class="btn btn-success"
+              style={{
+                backgroundColor: "#24953d",
+                border: "none",
+                margin: "5px",
+              }}
+            >
+              Добавить в таблицу
+              <i class="bi bi-plus-lg" style={{ marginLeft: "5px" }}></i>
+            </Button>
+          </form>
+          <br />
+        </div>
 
         <form onSubmit={this.handleEditFormSubmit}>
           <table class="table container">
