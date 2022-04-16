@@ -103,8 +103,8 @@ export class PDF extends Component {
    */
   createAndDownloadPdf = () => {
     axios
-      .post("/create-pdf", this.state)
-      .then(() => axios.get("offer-pdf", { responseType: "blob" }))
+      .post("api/create-pdf", this.state)
+      .then(() => axios.get("api/offer-pdf", { responseType: "blob" }))
       .then((res) => {
         const pdfBlob = new Blob([res.data], { type: "application/pdf" });
         saveAs(pdfBlob, "offer.pdf");
@@ -116,8 +116,8 @@ export class PDF extends Component {
    */
   createAndDownloadPdfFromImg = () => {
     axios
-      .post("/merge-img", this.state)
-      .then(() => axios.get("description-pdf", { responseType: "blob" }))
+      .post("api/merge-img", this.state)
+      .then(() => axios.get("api/description-pdf", { responseType: "blob" }))
       .then((res) => {
         const pdfBlob = new Blob([res.data], { type: "application/pdf" });
         saveAs(pdfBlob, "description.pdf");
@@ -129,7 +129,7 @@ export class PDF extends Component {
    */
   getDataFromDatabase = () => {
     axios
-      .get("/get-db-data")
+      .get("api/get-db-data")
       .then((res) => this.setState({ database: res.data }));
   };
 
@@ -137,7 +137,7 @@ export class PDF extends Component {
    * Посылаем запрос на парс условий из "БД" и их установку в стейт
    */
   getTermsFromDatabase = () => {
-    axios.get("/get-db-terms").then((res) => {
+    axios.get("api/get-db-terms").then((res) => {
       this.setState({ paymentTerms: res.data[0].PaymentTerms });
       this.setState({ deliveryTime: res.data[0].DeliveryTerms });
     });

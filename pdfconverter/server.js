@@ -9,7 +9,7 @@ const xlsx = require("xlsx");
 
 const app = express();
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 // Подключение промежуточного программного обеспечения
 app.use(cors());
@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + "/public"));
 
 // POST - PDF генерация для коммерческого предложения
-app.post("/create-pdf", (req, res) => {
+app.post("/api/create-pdf", (req, res) => {
   pdf.create(pdfTemplate(req.body), {}).toFile("offer.pdf", (err) => {
     if (err) {
       res.send(Promise.reject());
@@ -30,7 +30,7 @@ app.post("/create-pdf", (req, res) => {
 });
 
 // POST - PDF генерация для технического описания
-app.post("/merge-img", (req, res) => {
+app.post("/api/merge-img", (req, res) => {
   var directory = `${__dirname}/descriptions/`;
 
   fs.rmSync(directory, { recursive: true, force: true });
@@ -56,17 +56,17 @@ app.post("/merge-img", (req, res) => {
 });
 
 // GET - Получаем PDF оффер
-app.get("/offer-pdf", (req, res) => {
+app.get("/api/offer-pdf", (req, res) => {
   res.sendFile(`${__dirname}/offer.pdf`);
 });
 
 // GET - Получаем PDF описание
-app.get("/description-pdf", (req, res) => {
+app.get("/api/description-pdf", (req, res) => {
   res.sendFile(`${__dirname}/descriptions/description.pdf`);
 });
 
 // GET - Получаем данные из таблицы БД
-app.get("/get-db-data", (req, res) => {
+app.get("/api/get-db-data", (req, res) => {
   var wb = xlsx.readFile("./database.xlsx");
   const wsname = wb.SheetNames[0];
   const ws = wb.Sheets[wsname];
@@ -76,7 +76,7 @@ app.get("/get-db-data", (req, res) => {
 });
 
 // GET - Получаем условия из таблицы БД
-app.get("/get-db-terms", (req, res) => {
+app.get("/api/get-db-terms", (req, res) => {
   var wb = xlsx.readFile("./database.xlsx");
   const wsname = wb.SheetNames[1];
   const ws = wb.Sheets[wsname];
