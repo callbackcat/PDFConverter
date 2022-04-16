@@ -1,39 +1,45 @@
-module.exports = ({ clientName, companyName, items, paymentTerms, deliveryTime, docNum }) => {
+module.exports = ({
+  clientName,
+  companyName,
+  items,
+  paymentTerms,
+  deliveryTime,
+  docNum,
+}) => {
+  var petrovich = require("petrovich");
 
-var petrovich = require('petrovich');
+  const d = new Date();
 
-const d = new Date();
-
-/**
- * Разделяем ФИО по частям
- */
-var personData = clientName.split(' ');
-var person = {
-   first: personData[1],
-   middle: personData[2],
-   last: personData[0]
+  /**
+   * Разделяем ФИО по частям
+   */
+  var personData = clientName.split(" ");
+  var person = {
+    first: personData[1],
+    middle: personData[2],
+    last: personData[0],
   };
 
-/**
- * Подсчет общей цены товаров
- */
-var total = 0;
-for (const item of items) {
-	var price = item.Price.toString().replace('-', '.').replace(/\s/g, '');
-   total += parseFloat(price) * parseInt(item.Amount);
-}
+  /**
+   * Подсчет общей цены товаров
+   */
+  var total = 0;
+  for (const item of items) {
+    var price = item.Price.toString().replace("-", ".").replace(/\s/g, "");
+    total += parseFloat(price) * parseInt(item.Amount);
+  }
 
-/**
- * Делаем разрыв страницы после условий оплаты, если в таблице более 6 позиций
- */
-var newPageClass = ""
-var newPageTopPadding = 0
-if(items.length > 6) {
-  newPageClass = "clear newpage";
-  newPageTopPadding = 50;
-}
+  /**
+   * Делаем разрыв страницы после условий оплаты, если в таблице более 6 позиций
+   */
+  var newPageClass = "";
+  var newPageTopPadding = 0;
+  if (items.length > 6) {
+    newPageClass = "clear newpage";
+    newPageTopPadding = 50;
+  }
 
-return `
+  return `
 <!doctype html>
 <html>
   <head>
@@ -342,16 +348,26 @@ return `
           <tr style="height:17pt">
             <td style="width:296pt;border-top-style:solid;border-top-width:2pt">
               <p class="s2" style="padding-left: 14pt;line-height: 13pt;text-align: left;">Исх.
-              ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()} №РА-${d.getFullYear().toString().substr(-2)}/${docNum}</p>
+              ${d.getDate().toString().padStart(2, "0")}.${(d.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}.${d.getFullYear()} №РА-${d
+    .getFullYear()
+    .toString()
+    .substr(-2)}/${docNum}</p>
             </td>
             <td style="width:220pt;border-top-style:solid;border-top-width:2pt">
-              <p class="s3" style="padding-left: 136pt;line-height: 13pt;text-align: left;">${companyName}</p>
+              <p class="s3" style="padding-left: 136pt;line-height: 13pt;text-align: left;width: 300px; text-align: end;">${companyName}</p>
             </td>
           </tr>
         </table>
         <tr>
           <td>
-            <p style="padding-right: 3pt;text-align: right;"> ${petrovich(person, 'dative').last} ${petrovich(person, 'dative').first.charAt(0)}. ${petrovich(person, 'dative').middle.charAt(0)}. </p>
+            <p style="padding-right: 3pt;text-align: right;"> ${
+              petrovich(person, "dative").last
+            } ${petrovich(person, "dative").first.charAt(0)}. ${petrovich(
+    person,
+    "dative"
+  ).middle.charAt(0)}. </p>
           </td>
         </tr>
         <p style="padding-top: 12pt;padding-left: 20pt;text-indent: 35pt;text-align: justify;">ООО «РТК «РосАква» является официальным эксклюзивным представителем в России и странах СНГ компании <b>Changsha Kaiyuan Instruments Co.,Ltd </b>– ведущего производителя КНР и разработчика высококлассного аналитического оборудования, автоматизированных систем пробоотбора и пробоподготовки, систем 100% контроля качества твердого топлива.</p>
@@ -368,15 +384,18 @@ return `
               </tr>
             </thead>
             <tbody>
-               ${items.map((d) => (
-                  `<tr key=${d.Id}>
+               ${items
+                 .map(
+                   (d) =>
+                     `<tr key=${d.Id}>
                     <td>${d.Id}</td>
                      <td style="text-align: center;">${d.ProductName}</td>
                      <td><b>${d.Model}<b /></td>
                      <td>${d.Amount}</td>
                   <td>${d.Price}</td>
                </tr>`
-               )).join("")}
+                 )
+                 .join("")}
             </tbody>
             <tfoot>
               <tr>
@@ -384,7 +403,7 @@ return `
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td><b>ИТОГО<b /></td>
-                <td>${total.toLocaleString().replace(',', '-')}</td>
+                <td>${total.toLocaleString().replace(",", "-")}</td>
               </tr>
             </tfoot>
           </table>
@@ -396,7 +415,10 @@ return `
 
       <p class="${newPageClass}" style="padding-left: 58pt;text-align: left; padding-top: ${newPageTopPadding}px">Условия оплаты:</p>
       
-      <p style="padding-left: 88pt;text-align: left;">${paymentTerms.replace(/\r?\n/g, '<br />')}</p><br />
+      <p style="padding-left: 88pt;text-align: left;">${paymentTerms.replace(
+        /\r?\n/g,
+        "<br />"
+      )}</p><br />
 
       <p style="padding-left: 58pt;text-align: left;">Срок поставки: ${deliveryTime}</p>
       <p style="padding-left: 58pt;text-align: left;">Приложение: техническое описание приборов.</p>
