@@ -20,27 +20,31 @@ app.use(express.static(__dirname + "/public"));
 
 // POST - PDF генерация для коммерческого предложения
 app.post("/api/create-pdf", (req, res) => {
-  pdf.create(pdfTemplate(req.body), {}).toFile("offer.pdf", (err) => {
-    if (err) {
-      res.send(Promise.reject());
-    }
+  pdf
+    .create(pdfTemplate(req.body), {})
+    .toFile(`${__dirname}/output/offer.pdf`, (err) => {
+      if (err) {
+        res.send(Promise.reject());
+      }
 
-    res.send(Promise.resolve());
-  });
+      res.send(Promise.resolve());
+    });
 });
 
 // POST - PDF генерация для технического описания
 app.post("/api/merge-img", (req, res) => {
-  var directory = `${__dirname}/descriptions/`;
-
-  fs.rmSync(directory, { recursive: true, force: true });
-  fs.mkdirSync(directory);
-
   var pageLens = req.body.pageNumbers;
   var imagesPath = [];
 
   for (const pageLen of pageLens) {
     var currentPair = pageLen.split("-");
+
+    if (currentPair.length === 1) {
+      var imagePath = `public/images/${currentPair}.jpg`;
+      imagesPath.push(imagePath);
+      continue;
+    }
+
     var pageStart = parseInt(currentPair[0]);
     var pageEnd = parseInt(currentPair[1]);
 
@@ -50,19 +54,29 @@ app.post("/api/merge-img", (req, res) => {
     }
   }
 
-  imagesToPdf(imagesPath, `${__dirname}/descriptions/description.pdf`);
+  imagesToPdf(imagesPath, `${__dirname}/output/description.pdf`);
 
   res.send(Promise.resolve());
 });
 
 // GET - Получаем PDF оффер
 app.get("/api/offer-pdf", (req, res) => {
-  res.sendFile(`${__dirname}/offer.pdf`);
+  res.sendFile(`${__dirname}/output/offer.pdf`);
+
+  setTimeout(() => {
+    fs.rmSync(`${__dirname}/output/`, { recursive: true, force: true });
+    fs.mkdirSync(`${__dirname}/output/`);
+  }, 5000);
 });
 
 // GET - Получаем PDF описание
 app.get("/api/description-pdf", (req, res) => {
-  res.sendFile(`${__dirname}/descriptions/description.pdf`);
+  res.sendFile(`${__dirname}/output/description.pdf`);
+
+  setTimeout(() => {
+    fs.rmSync(`${__dirname}/output/`, { recursive: true, force: true });
+    fs.mkdirSync(`${__dirname}/output/`);
+  }, 5000);
 });
 
 // GET - Получаем данные из таблицы БД

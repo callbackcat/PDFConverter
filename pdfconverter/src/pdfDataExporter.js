@@ -2,6 +2,7 @@ import React, { Component, Fragment } from "react";
 import axios from "axios";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
+import fs from "fs";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Button } from "react-bootstrap";
@@ -41,6 +42,8 @@ export class PDF extends Component {
       Price: "",
       PageNumber: "",
     },
+
+    gender: "male",
   };
 
   /**
@@ -359,7 +362,6 @@ export class PDF extends Component {
           class="bi bi-terminal-fill"
           style={{ position: "absolute", left: 10, top: -10, fontSize: 50 }}
         ></i>
-
         <input
           style={{ margin: "5px" }}
           type="text"
@@ -367,15 +369,30 @@ export class PDF extends Component {
           name="clientName"
           onChange={this.handleChange}
         />
-
         <input
-          style={{ margin: "5px" }}
+          type="radio"
+          name="gender"
+          value="male"
+          onChange={this.handleChange}
+          checked={this.state.gender === "male"}
+        ></input>
+        {"Муж."}
+        <input
+          style={{ marginLeft: "5px" }}
+          type="radio"
+          name="gender"
+          value="female"
+          onChange={this.handleChange}
+        ></input>
+        {"Жен."}
+        <br />
+        <input
+          style={{ margin: "5px", width: "293px" }}
           type="text"
           placeholder="Название компании"
           name="companyName"
           onChange={this.handleChange}
         />
-
         <div>
           <textarea
             style={{ margin: "10px" }}
@@ -387,7 +404,6 @@ export class PDF extends Component {
             onChange={this.handleChange}
           />
         </div>
-
         <input
           style={{ margin: "5px" }}
           type="text"
@@ -396,7 +412,6 @@ export class PDF extends Component {
           value={this.state.deliveryTime}
           onChange={this.handleChange}
         />
-
         <input
           style={{ margin: "5px" }}
           type="number"
@@ -404,7 +419,6 @@ export class PDF extends Component {
           name="docNum"
           onChange={this.handleChange}
         />
-
         <input
           style={{ marginLeft: "5px" }}
           type="file"
@@ -415,7 +429,6 @@ export class PDF extends Component {
           onClick={this.handleRepeatFileChange}
         />
         <br />
-
         <button
           style={{ margin: "10px" }}
           class="btn btn-secondary"
@@ -430,7 +443,6 @@ export class PDF extends Component {
         >
           <b>Скачать коммерческое предложение</b>
         </button>
-
         <button
           class="btn btn-secondary"
           disabled={this.state.items.length === 0}
@@ -438,10 +450,8 @@ export class PDF extends Component {
         >
           <b>Скачать техническое описание</b>
         </button>
-
         <FAQ />
         <br />
-
         <div
           style={{
             backgroundColor: "#bbbbbba9",
@@ -512,7 +522,6 @@ export class PDF extends Component {
           </form>
           <br />
         </div>
-
         <form onSubmit={this.handleEditFormSubmit}>
           <table class="table container">
             <thead>

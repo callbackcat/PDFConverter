@@ -5,6 +5,7 @@ module.exports = ({
   paymentTerms,
   deliveryTime,
   docNum,
+  gender,
 }) => {
   var petrovich = require("petrovich");
 
@@ -14,11 +15,31 @@ module.exports = ({
    * Разделяем ФИО по частям
    */
   var personData = clientName.split(" ");
-  var person = {
-    first: personData[1],
-    middle: personData[2],
-    last: personData[0],
-  };
+
+  var person = {};
+  var fio = "";
+
+  if (personData.length > 2) {
+    person = {
+      first: personData[1],
+      middle: personData[2],
+      last: personData[0],
+    };
+    fio = `${petrovich(person, "dative").last} ${petrovich(
+      person,
+      "dative"
+    ).first.charAt(0)}. ${petrovich(person, "dative").middle.charAt(0)}.`;
+  } else {
+    person = {
+      gender: gender,
+      first: personData[1],
+      last: personData[0],
+    };
+    fio = `${petrovich(person, "dative").last} ${petrovich(
+      person,
+      "dative"
+    ).first.charAt(0)}.`;
+  }
 
   /**
    * Подсчет общей цены товаров
@@ -362,12 +383,7 @@ module.exports = ({
         </table>
         <tr>
           <td>
-            <p style="padding-right: 3pt;text-align: right;"> ${
-              petrovich(person, "dative").last
-            } ${petrovich(person, "dative").first.charAt(0)}. ${petrovich(
-    person,
-    "dative"
-  ).middle.charAt(0)}. </p>
+            <p style="padding-right: 3pt;text-align: right;">${fio}</p>
           </td>
         </tr>
         <p style="padding-top: 12pt;padding-left: 20pt;text-indent: 35pt;text-align: justify;">ООО «РТК «РосАква» является официальным эксклюзивным представителем в России и странах СНГ компании <b>Changsha Kaiyuan Instruments Co.,Ltd </b>– ведущего производителя КНР и разработчика высококлассного аналитического оборудования, автоматизированных систем пробоотбора и пробоподготовки, систем 100% контроля качества твердого топлива.</p>
