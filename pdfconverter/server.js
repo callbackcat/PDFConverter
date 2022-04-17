@@ -34,29 +34,43 @@ app.post("/api/create-pdf", (req, res) => {
 // POST - PDF генерация для технического описания
 app.post("/api/merge-img", (req, res) => {
   var pageLens = req.body.pageNumbers;
+
   var imagesPath = [];
+  var numericArr = [];
 
-  for (const pageLen of pageLens) {
-    var currentPair = pageLen.split("-");
+  pageLens.forEach((element) => {
+    var currentPair = element.split("-");
+    if (currentPair.length > 1) {
+      numericArr.push(currentPair[0]);
+      numericArr.push(currentPair[1]);
+    } else {
+      numericArr.push(currentPair[0]);
+    }
+  });
 
-    if (currentPair.length === 1) {
-      var imagePath = `public/images/${currentPair}.jpg`;
-      imagesPath.push(imagePath);
-      continue;
+  if (!numericArr.some(isNaN)) {
+    for (const pageLen of pageLens) {
+      var currentPair = pageLen.split("-");
+
+      if (currentPair.length === 1) {
+        var imagePath = `public/images/${currentPair}.jpg`;
+        imagesPath.push(imagePath);
+        continue;
+      }
+
+      var pageStart = parseInt(currentPair[0]);
+      var pageEnd = parseInt(currentPair[1]);
+
+      for (let i = pageStart; i <= pageEnd; i++) {
+        var imagePath = `public/images/${i}.jpg`;
+        imagesPath.push(imagePath);
+      }
     }
 
-    var pageStart = parseInt(currentPair[0]);
-    var pageEnd = parseInt(currentPair[1]);
+    imagesToPdf(imagesPath, `${__dirname}/output/description.pdf`);
 
-    for (let i = pageStart; i <= pageEnd; i++) {
-      var imagePath = `public/images/${i}.jpg`;
-      imagesPath.push(imagePath);
-    }
+    res.send(Promise.resolve());
   }
-
-  imagesToPdf(imagesPath, `${__dirname}/output/description.pdf`);
-
-  res.send(Promise.resolve());
 });
 
 // GET - Получаем PDF оффер
