@@ -44,6 +44,7 @@ export class PDF extends Component {
     },
 
     gender: "male",
+    showModelDropdown: true,
   };
 
   /**
@@ -355,6 +356,10 @@ export class PDF extends Component {
     this.setState({ pageNumbers: pages });
   };
 
+  handleshowModelDropdown = () => {
+    this.setState({ showModelDropdown: !this.state.showModelDropdown });
+  };
+
   render() {
     return (
       <div className="PDF">
@@ -475,12 +480,24 @@ export class PDF extends Component {
               value={this.state.addFormData.ProductName}
               style={{ margin: "5px" }}
             />
-            <Dropdown
-              data={this.state.database}
-              name="Model"
-              handleModelSelect={this.handleModelSelect}
-              style={{ margin: "5px" }}
-            />
+            {this.state.showModelDropdown && (
+              <Dropdown
+                data={this.state.database}
+                name="Model"
+                handleModelSelect={this.handleModelSelect}
+                style={{ margin: "5px" }}
+              />
+            )}
+            {!this.state.showModelDropdown && (
+              <input
+                type="text"
+                required="required"
+                placeholder="Модель"
+                name="Model"
+                onChange={this.handleAddFormChange}
+                style={{ margin: "5px" }}
+              />
+            )}
             <input
               type="number"
               required="required"
@@ -516,8 +533,12 @@ export class PDF extends Component {
                 margin: "5px",
               }}
             >
-              Добавить в таблицу
+              Добавить
               <i class="bi bi-plus-lg" style={{ marginLeft: "5px" }}></i>
+            </Button>
+            <Button onClick={this.handleshowModelDropdown}>
+              Не из базы
+              <i class="bi bi-folder-x" style={{ marginLeft: "5px" }}></i>
             </Button>
           </form>
           <br />
