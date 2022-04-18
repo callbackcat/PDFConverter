@@ -2,7 +2,6 @@ import React, { Component, Fragment } from "react";
 import axios from "axios";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
-import fs from "fs";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Button } from "react-bootstrap";
