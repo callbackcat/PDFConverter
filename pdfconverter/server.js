@@ -76,21 +76,11 @@ app.post("/api/merge-img", (req, res) => {
 // GET - Получаем PDF оффер
 app.get("/api/offer-pdf", (req, res) => {
   res.sendFile(`${__dirname}/output/offer.pdf`);
-
-  setTimeout(() => {
-    fs.rmSync(`${__dirname}/output/`, { recursive: true, force: true });
-    fs.mkdirSync(`${__dirname}/output/`);
-  }, 5000);
 });
 
 // GET - Получаем PDF описание
 app.get("/api/description-pdf", (req, res) => {
   res.sendFile(`${__dirname}/output/description.pdf`);
-
-  setTimeout(() => {
-    fs.rmSync(`${__dirname}/output/`, { recursive: true, force: true });
-    fs.mkdirSync(`${__dirname}/output/`);
-  }, 5000);
 });
 
 // GET - Получаем данные из таблицы БД
