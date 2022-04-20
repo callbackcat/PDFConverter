@@ -69,7 +69,8 @@ module.exports = ({
       <title>PDF Result Template</title>
       <style>
         .invoice-box {
-          margin: auto;
+          height: 100%;
+          margin: 0;
           margin-top: -25px;
           padding: 30px;
           font-size: 16px;
@@ -77,7 +78,10 @@ module.exports = ({
           font-family: 'Helvetica Neue', 'Helvetica',
             color: #555;
             position: relative;
-            min-height: 325vh;
+        }
+
+        html {
+          height: 100%;
         }
 
         .justify-center {
@@ -341,9 +345,9 @@ module.exports = ({
        }
 
        .footer {
-          position: absolute;
+          position: fixed;
           bottom: 0;
-          height: 2.5rem;   
+          height: 8rem;   
        }
 
        .newpage {
@@ -451,7 +455,7 @@ module.exports = ({
         <p style="padding-left: 5pt;"><b>Мебельная 5А, офис 317</b></p>
       </div>
 
-      <div class="footer" style="width: 93%; text-align: right">
+      <div class="footer" style="width: 93%; text-align: right;">
         <p style="padding-top: 25pt;" />
         <p style="padding-left: 5pt;padding-top: 10pt;"><b>тел/факс: (812) 600-36-12</b></p>
         <p style="padding-left: 5pt;"><b>e-mail: <u id="link" href="https://outlook.office.com/mail/deeplink/compose?mailtouri=mailto%3Ainfo%40rosaqua.ru">info@rosaqua.ru</u></b></p>
